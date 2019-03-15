@@ -15,14 +15,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
-import { CharacterComponent } from './character/character.component';
 import { CharCopyComponent } from './char-copy/char-copy.component';
 import { AccCopyComponent } from './acc-copy/acc-copy.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CharacterComponent,
     CharCopyComponent,
     AccCopyComponent
   ],

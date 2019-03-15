@@ -12,7 +12,6 @@ export class AppService {
   private baseUrl = 'https://esi.evetech.net/latest';
   private imageServer = 'https://imageserver.eveonline.com/Character/';
   private ipc: IpcRenderer;
-  public chars: Char[] = [];
 
   constructor(public http: HttpClient) {
     if ((window as any).require) {
@@ -27,15 +26,17 @@ export class AppService {
   }
 
   getCharInfo = (pid: string): Observable<Char> =>
-    this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`)
-      .pipe(
-        catchError(error => of(undefined)),
-        map(char => ({
-          id: pid,
-          data: char,
-          profile: `${this.imageServer}${pid}_256.jpg`
-        } as Char))
+    this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`).pipe(
+      catchError(error => of(undefined)),
+      map(
+        char =>
+          ({
+            id: pid,
+            data: char,
+            profile: `${this.imageServer}${pid}_256.jpg`
+          } as Char)
       )
+    )
 
   getFiles = (): Observable<string[]> => {
     return Observable.create((observer: Observer<string[]>) => {
@@ -57,17 +58,13 @@ export class AppService {
     });
   }
 
-  unselectAll = () => {
-    this.chars.forEach((char) => char.checked = false);
-  }
-
   async writeFile() {
     return new Promise<any>((resolve, reject) => {
       this.ipc.once('writeResponse', (event, arg) => {
         resolve(arg);
       });
       this.ipc.send('writeFile', ['potato']);
-    })
+    });
   }
 
   async getFileContent() {
