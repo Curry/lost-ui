@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/eve-profile",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -56,6 +56,9 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "electron": {
+              "baseHref": "./"
             }
           }
         },

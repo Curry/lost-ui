@@ -1,0 +1,29 @@
+<div>
+  <h4>Primary Character</h4>
+  <div fxLayout="row">
+    <mat-form-field>
+      <mat-select [(ngModel)]="primary" placeholder="">
+        <mat-option *ngFor="let charName of charNames" [value]="charName">
+          {{charName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-raised-button (click)="copyCharSettings()" color="primary" [disabled]="buttonDisabled">Update
+      Characters</button>
+    <div *ngIf="done" class="prompt" fxLayout="row">
+      <mat-icon class="mat-18">check_circle</mat-icon>
+      <p>Character Settings copied!</p>
+    </div>
+  </div>
+  <div fxLayout="row wrap" fxLayout.xs="column">
+      <mat-card *ngFor="let char of chars"  [ngClass]="{'selected': char.checked}">
+        <mat-card-header>
+          <img matCardAvatar [src]="char.profile">
+          <mat-card-title>{{char.data.name}}</mat-card-title>
+        </mat-card-header>
+        <mat-card-actions align="middle">
+          <mat-checkbox class="example-margin" [(ngModel)]="char.checked"></mat-checkbox>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+</div>
