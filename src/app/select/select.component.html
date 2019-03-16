@@ -1,0 +1,25 @@
+<div>
+  <div>
+    <h2>Select Drive Folder</h2>
+    <mat-form-field>
+      <mat-select [(ngModel)]="selectedDrive" placeholder="" (selectionChange)="getConfig($event.value)">
+        <mat-option *ngFor="let drive of allDrives" [value]="drive">
+          {{drive}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div *ngIf="selectedDrive">
+    <h2>Select Configuration Folder</h2>
+    <mat-form-field>
+        <mat-select [(ngModel)]="selectedConfiguration" placeholder="">
+          <mat-option *ngFor="let conf of allConfigurations" [value]="conf">
+            {{conf}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+  </div>
+  <div *ngIf="selectedConfiguration">
+    <button mat-raised-button (click)="setConfig()">Select Folder</button>
+  </div>
+</div>
