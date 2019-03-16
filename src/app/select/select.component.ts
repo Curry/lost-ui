@@ -18,11 +18,9 @@ export class SelectComponent implements OnInit {
   constructor(private service: AppService, private router: Router, private zone: NgZone) { }
 
   ngOnInit() {
-    this.service
-      .getOS()
+    this.service.resetDir()
       .pipe(
-        map(() => /([a-z]{1})(.*)(tq|sisi)/),
-        concatMap(this.service.getPossibleFiles)
+        concatMap(() => this.service.getPossibleFiles(/([a-z]{1})(.*)(tq|sisi)/))
       ).subscribe((val) => {
         this.allDrives = val;
       });
@@ -32,7 +30,8 @@ export class SelectComponent implements OnInit {
     this.service.setConf(this.selectedConfiguration).subscribe(() => {
       this.zone.run(() => {
         this.service.selected = true;
-        this.router.navigate(['char']);
+        this.service.path = `${this.selectedDrive}/${this.selectedConfiguration}`;
+        this.router.navigate(['char'], { queryParams: { refresh: true } });
       });
     });
   }

@@ -13,19 +13,20 @@ serve = args.some(val => val === '--serve');
 let baseDir;
 let driveDir;
 let confDir;
+const home = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 if (process.platform === 'darwin') {
-  baseDir = path.join(os.homedir(), 'Library', 'Application Support', 'EVE Online', 'p_drive',
+  baseDir = path.join(home, 'Library', 'Application Support', 'EVE Online', 'p_drive',
     'Local Settings', 'Application Data', 'CCP', 'EVE', 'SharedCache',
     'wineenv', 'drive_c', 'users', os.userInfo().username, 'Local Settings',
     'Application Data', 'CCP', 'EVE');
 } else if (process.platform === 'win32') {
-  baseDir = path.join(os.homedir(), 'AppData', 'Local', 'CCP', 'EVE');
+  baseDir = path.join(home, 'AppData', 'Local', 'CCP', 'EVE');
 }
 let dir = baseDir;
 
-ipcMain.on('getOS', (event, arg) => {
+ipcMain.on('resetDir', (event, arg) => {
   dir = baseDir;
-  win.webContents.send('getOSResponse', process.platform);
+  win.webContents.send('resetDirResponse', process.platform);
 });
 
 ipcMain.on('setDrive', (event, arg) => {
@@ -61,15 +62,41 @@ ipcMain.on('copyCharSettings', (event, arg) => {
   });
   let zip = new JSZip();
   list.forEach(function (char) {
-    zip.file(`${pre}${char}.dat`, fs.readFileSync(`${dir}${pre}${char}.dat`));
+    zip.file(`${pre}${char}.dat`, fs.readFileSync(`${dir}/${pre}${char}.dat`));
   });
+  if (!fs.existsSync(`${dir}/.eveprofile`)) {
+    fs.mkdirSync(`${dir}/.eveprofile`);
+  }
   zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-    .pipe(fs.createWriteStream(`${dir}backups/c_${new Date().toISOString()}.zip`))
+    .pipe(fs.createWriteStream(`${dir}/.eveprofile/c_${new Date().toISOString()}.zip`))
     .on('finish', function () {
       list.forEach(function (char) {
-        fs.copyFileSync(`${dir}${pre}${main}.dat`, `${dir}${pre}${char}.dat`);
+        fs.copyFileSync(`${dir}/${pre}${main}.dat`, `${dir}/${pre}${char}.dat`);
       });
       win.webContents.send('copyCharResponse');
+    });
+});
+
+ipcMain.on('copyAccSettings', (event, arg) => {
+  const pre = 'core_user_'
+  const main = arg[0];
+  const list = arg.filter(function (acc) {
+    return acc !== main;
+  });
+  let zip = new JSZip();
+  list.forEach(function (acc) {
+    zip.file(`${pre}${acc}.dat`, fs.readFileSync(`${dir}/${pre}${acc}.dat`));
+  });
+  if (!fs.existsSync(`${dir}/.eveprofile`)) {
+    fs.mkdirSync(`${dir}/.eveprofile`);
+  }
+  zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+    .pipe(fs.createWriteStream(`${dir}/.eveprofile/a_${new Date().toISOString()}.zip`))
+    .on('finish', function () {
+      list.forEach(function (acc) {
+        fs.copyFileSync(`${dir}/${pre}${main}.dat`, `${dir}/${pre}${acc}.dat`);
+      });
+      win.webContents.send('copyAccResponse');
     });
 });
 

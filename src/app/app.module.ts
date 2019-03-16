@@ -11,6 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +33,7 @@ import { SelectComponent } from './select/select.component';
     AppRoutingModule,
     MatGridListModule,
     MatCardModule,
+    MatBadgeModule,
     MatButtonModule,
     MatIconModule,
     FlexLayoutModule,

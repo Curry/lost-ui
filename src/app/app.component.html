@@ -1,5 +1,5 @@
 <mat-toolbar *ngIf="selected">
-  <div>
+  <div fxFlex=50>
     <mat-button-toggle-group>
       <mat-button-toggle routerLink="char" routerLinkActive="mat-button-toggle-checked">
         Character
@@ -9,6 +9,9 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-  <button class="change" mat-raised-button (click)="changeFolder()" color="accent">Change Folder</button>
+  <div fxLayout="row" class="folder" fxFlex=50>
+    <button class="change" mat-flat-button (click)="changeFolder()" color="warn">Change Folder</button>
+    <p class="pwd">{{path}}</p>
+  </div>
 </mat-toolbar>
 <router-outlet></router-outlet>

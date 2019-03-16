@@ -2,9 +2,13 @@ button {
   margin-top: auto;
   margin-bottom: auto;
   margin-left: 15px;
+  p {
+    margin: auto;
+  }
 }
 
 div.prompt{
+  padding-left: 20px;
   .mat-icon {
     margin: auto;
   }

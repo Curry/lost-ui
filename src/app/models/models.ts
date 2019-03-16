@@ -19,3 +19,10 @@ export class Char {
   checked: boolean;
   disabled: boolean;
 }
+
+export class Acc {
+  checked: boolean;
+  disabled: boolean;
+  id: string;
+  linkChars: Char[];
+}
