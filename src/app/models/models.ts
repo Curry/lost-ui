@@ -17,4 +17,5 @@ export class Char {
   data: Character;
   profile: string;
   checked: boolean;
+  disabled: boolean;
 }

@@ -17,12 +17,14 @@ import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { CharCopyComponent } from './char-copy/char-copy.component';
 import { AccCopyComponent } from './acc-copy/acc-copy.component';
+import { SelectComponent } from './select/select.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CharCopyComponent,
-    AccCopyComponent
+    AccCopyComponent,
+    SelectComponent
   ],
   imports: [
     BrowserModule,
