@@ -1,4 +1,4 @@
-<div>
+<div class="select">
   <div>
     <h2>Select Drive Folder</h2>
     <mat-form-field>
@@ -20,6 +20,6 @@
       </mat-form-field>
   </div>
   <div *ngIf="selectedConfiguration">
-    <button mat-raised-button (click)="setConfig()">Select Folder</button>
+    <button mat-flat-button (click)="setConfig()" color="primary">Select Folder</button>
   </div>
 </div>

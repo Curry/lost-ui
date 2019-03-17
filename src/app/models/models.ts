@@ -26,3 +26,17 @@ export class Acc {
   id: string;
   linkChars: Char[];
 }
+
+export class Data {
+  id: string;
+  name: string;
+  checked: boolean;
+  disabled: boolean;
+  img: string;
+  type?: number;
+}
+
+export enum CopyType {
+  CH = 'char',
+  AC = 'user'
+}

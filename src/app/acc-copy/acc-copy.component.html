@@ -13,10 +13,6 @@
     </mat-form-field>
     <button mat-raised-button [matBadge]="numChecked" matBadgeColor="accent" [matBadgeHidden]="buttonDisabled" (click)="copyAccSettings()" color="primary" [disabled]="buttonDisabled">Update Accounts</button>
     <button mat-raised-button (click)="toggleSelect()" color="primary" [disabled]="!primary"><p *ngIf="!selectAll">Select All</p><p *ngIf="selectAll">Deselect All</p></button>
-    <div *ngIf="done" class="prompt" fxLayout="row">
-      <mat-icon class="mat-18">check_circle</mat-icon>
-      <p>Account Settings copied!</p>
-    </div>
   </div>
   <div class="profile-row" fxLayout="row wrap" fxLayout.xs="column">
     <mat-card *ngFor="let acc of accs" [ngClass]="{'selected': acc.checked, 'disabled': acc.disabled}">

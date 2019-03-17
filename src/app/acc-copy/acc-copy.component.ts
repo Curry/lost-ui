@@ -1,7 +1,8 @@
 import { tap, delay } from 'rxjs/operators';
 import { AppService } from './../app.service';
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
-import { Acc } from '../models/models';
+import { Acc, CopyType } from '../models/models';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-acc-copy',
@@ -10,10 +11,10 @@ import { Acc } from '../models/models';
 })
 export class AccCopyComponent implements OnInit {
   primary: string;
-  done: boolean;
   selectAll: boolean;
 
-  constructor(private service: AppService, private zone: NgZone, private cdr: ChangeDetectorRef) {
+  constructor(private service: AppService, private zone: NgZone, private cdr: ChangeDetectorRef,
+              private snack: MatSnackBar) {
     this.accs = [];
   }
 
@@ -26,7 +27,7 @@ export class AccCopyComponent implements OnInit {
   }
 
   public get numChecked() {
-    return this.accs.reduce((total, acc) => (total += acc.checked ? 1 : 0), 0)
+    return this.accs.reduce((total, acc) => (total += acc.checked ? 1 : 0), 0);
   }
 
   public get buttonDisabled() {
@@ -60,17 +61,17 @@ export class AccCopyComponent implements OnInit {
 
   copyAccSettings = () => {
     this.service
-    .copyAccSettings(
+    .copySettings(
+      CopyType.AC,
       this.accs.find(acc => acc.id === this.primary).id,
       this.accs.filter(acc => acc.checked).map(acc => acc.id)
     )
-    .pipe(
-      tap(this.finalize),
-      delay(10000)
-    )
+    .pipe(tap(this.finalize))
     .subscribe(() => {
       this.zone.run(() => {
-        this.done = false;
+        this.snack.open('Account Settings copied!', 'Dismiss', {
+          duration: 5000
+        });
       });
     });
   }
@@ -87,7 +88,6 @@ export class AccCopyComponent implements OnInit {
   finalize = () => {
     this.zone.run(() => {
       this.accs.forEach(char => (char.checked = false));
-      this.done = true;
       this.cdr.detectChanges();
     });
   }

@@ -1,8 +1,10 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AppService } from './../app.service';
-import { Component, NgZone, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Char } from '../models/models';
+import { Component, NgZone, OnInit, ChangeDetectorRef, OnChanges, OnDestroy } from '@angular/core';
+import { Char, CopyType } from '../models/models';
 import { ActivatedRoute, } from '@angular/router';
-import { tap, delay } from 'rxjs/operators';
+import { tap, delay, concatMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-char-copy',
@@ -11,10 +13,11 @@ import { tap, delay } from 'rxjs/operators';
 })
 export class CharCopyComponent implements OnInit {
   primary: string;
-  done: boolean;
   selectAll: boolean;
+  navSub: Subscription;
 
-  constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
+  constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
+              private snack: MatSnackBar) {
     this.chars = [];
   }
 
@@ -39,8 +42,8 @@ export class CharCopyComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.getCharSettings(params.refresh || false);
+    this.navSub = this.route.queryParams.subscribe(params => {
+      this.getCharSettings(params.refresh || false, params.default || false);
     });
   }
 
@@ -56,9 +59,12 @@ export class CharCopyComponent implements OnInit {
     this.getCharSettings(true);
   }
 
-  getCharSettings = (refresh: boolean = false) => {
-    this.service.getCharProfile(refresh)
-      .subscribe((val: Char[]) => {
+  getCharSettings = (refresh: boolean, def: boolean = false) => {
+    const gcsObs = def ? this.service.navigateDefault().pipe(
+      concatMap(() => this.service.getCharProfile(true))
+    ) : this.service.getCharProfile(refresh);
+
+    gcsObs.subscribe((val: Char[]) => {
         this.zone.run(() => {
           this.chars = val;
           this.primary = '';
@@ -68,17 +74,17 @@ export class CharCopyComponent implements OnInit {
 
   copyCharSettings = () => {
     this.service
-      .copyCharSettings(
+      .copySettings(
+        CopyType.CH,
         this.chars.find(char => char.data.name === this.primary).id,
         this.chars.filter(char => char.checked).map(char => char.id)
       )
-      .pipe(
-        tap(this.finalize),
-        delay(10000)
-      )
+      .pipe(tap(this.finalize))
       .subscribe(() => {
         this.zone.run(() => {
-          this.done = false;
+          this.snack.open('Character Settings copied!', 'Dismiss', {
+            duration: 5000
+          });
         });
       });
   }
@@ -95,7 +101,6 @@ export class CharCopyComponent implements OnInit {
   finalize = () => {
     this.zone.run(() => {
       this.chars.forEach(char => (char.checked = false));
-      this.done = true;
       this.cdr.detectChanges();
     });
   }

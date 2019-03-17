@@ -1,7 +1,9 @@
+import { CopyType } from './models/models';
+import { SelectComponent } from './select/select.component';
+import { MatDialog } from '@angular/material/dialog';
 import { AppService } from './app.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-
 
 @Component({
   selector: 'app-root',
@@ -9,10 +11,11 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  constructor(public service: AppService, private router: Router) { }
+  constructor(public service: AppService, private router: Router, private dialog: MatDialog) {
+  }
 
   ngOnInit() {
-    this.changeFolder();
+    this.router.navigate([''], { queryParams: { default: true } });
   }
 
   public get selected() {
@@ -23,8 +26,15 @@ export class AppComponent implements OnInit {
     return this.service.path;
   }
 
+  public get type() {
+    return this.service.type;
+  }
+
+  public setType(val: CopyType) {
+    this.service.type = val;
+  }
+
   changeFolder = () => {
-    this.service.selected = false;
-    this.router.navigate(['']);
+    this.dialog.open(SelectComponent);
   }
 }

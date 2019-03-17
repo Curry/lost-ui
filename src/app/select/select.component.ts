@@ -1,3 +1,4 @@
+import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AppService } from './../app.service';
 import { Component, OnInit, NgZone } from '@angular/core';
@@ -13,25 +14,28 @@ export class SelectComponent implements OnInit {
   selectedConfiguration: string;
   allDrives: string[];
   allConfigurations: string[];
-  ready = false;
 
-  constructor(private service: AppService, private router: Router, private zone: NgZone) { }
+  constructor(private service: AppService, private router: Router, private zone: NgZone,
+              private dialogRef: MatDialogRef<SelectComponent>) {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+  }
 
   ngOnInit() {
     this.service.resetDir()
       .pipe(
-        concatMap(() => this.service.getPossibleFiles(/([a-z]{1})(.*)(tq|sisi)/))
+        concatMap(() => this.service.getFiles(/([a-z]{1})(.*)(tq|sisi)/))
       ).subscribe((val) => {
         this.allDrives = val;
+        this.selectedDrive = '';
       });
   }
 
   setConfig = () => {
     this.service.setConf(this.selectedConfiguration).subscribe(() => {
       this.zone.run(() => {
-        this.service.selected = true;
         this.service.path = `${this.selectedDrive}/${this.selectedConfiguration}`;
-        this.router.navigate(['char'], { queryParams: { refresh: true } });
+        this.router.navigate([''], { queryParams: { refresh: true } });
+        this.dialogRef.close();
       });
     });
   }
@@ -39,10 +43,10 @@ export class SelectComponent implements OnInit {
   getConfig = (drive: string) => {
     this.service.setDrive(drive)
       .pipe(
-        map(() => /(settings)/),
-        concatMap(this.service.getPossibleFiles)
+        concatMap(() => this.service.getFiles(/(settings)/))
       ).subscribe((val) => {
         this.allConfigurations = val;
+        this.selectedConfiguration = '';
       });
   }
 }

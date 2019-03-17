@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "ng": "ng",
-    "start": "concurrently \"ng serve\" \"electron . --serve\"",
+    "start": "concurrently \"ng serve\" \"electron . local\"",
     "build": "ng build -c production",
     "test": "ng test",
     "lint": "ng lint",

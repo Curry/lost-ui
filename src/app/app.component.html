@@ -1,17 +1,19 @@
-<mat-toolbar *ngIf="selected">
-  <div fxFlex=50>
-    <mat-button-toggle-group>
-      <mat-button-toggle routerLink="char" routerLinkActive="mat-button-toggle-checked">
-        Character
-      </mat-button-toggle>
-      <mat-button-toggle routerLink="acc" routerLinkActive="mat-button-toggle-checked">
-        Account
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-  <div fxLayout="row" class="folder" fxFlex=50>
-    <button class="change" mat-flat-button (click)="changeFolder()" color="warn">Change Folder</button>
-    <p class="pwd">{{path}}</p>
-  </div>
-</mat-toolbar>
-<router-outlet></router-outlet>
+<div>
+  <mat-toolbar>
+    <div fxFlex=50>
+      <mat-button-toggle-group>
+        <mat-button-toggle [checked]="true" (change)="setType('CH')">
+          Character
+        </mat-button-toggle>
+        <mat-button-toggle (change)="setType('AC')">
+          Account
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div fxLayout="row" class="folder" fxFlex=50>
+      <button class="change" mat-flat-button (click)="changeFolder()" color="warn">Change Folder</button>
+      <p class="pwd">{{path}}</p>
+    </div>
+  </mat-toolbar>
+  <router-outlet></router-outlet>
+</div>
