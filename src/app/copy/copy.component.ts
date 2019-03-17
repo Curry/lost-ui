@@ -1,5 +1,4 @@
-import { Copy } from './../models/models';
-import { Data, CopyType } from './../models/models';
+import { Data, CopyType, Copy } from './../models/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
@@ -12,7 +11,6 @@ import { concatMap, tap } from 'rxjs/operators';
   styleUrls: ['./copy.component.scss']
 })
 export class CopyComponent implements OnInit, Copy {
-  primary: string;
   selectAll: boolean;
 
   constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
@@ -20,6 +18,18 @@ export class CopyComponent implements OnInit, Copy {
 
   public get data() {
     return this.type === CopyType.CH ? this.service.charData : this.service.accData;
+  }
+
+  public get primary() {
+    return this.type === CopyType.CH ? this.service.primaryChar : this.service.primaryAcc;
+  }
+
+  public set primary(val: string) {
+    if (this.type === CopyType.CH) {
+      this.service.primaryChar = val;
+    } else {
+      this.service.primaryAcc = val;
+    }
   }
 
   public get names() {

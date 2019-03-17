@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Character, CopyType, Data } from './models/models';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Observer, forkJoin } from 'rxjs';
-import { map, publishReplay, refCount, concatMap, tap, switchMap } from 'rxjs/operators';
+import { Observable, Observer, forkJoin, of } from 'rxjs';
+import { map, concatMap, tap, switchMap, exhaustMap } from 'rxjs/operators';
 import { IpcRenderer } from 'electron';
 
 @Injectable({
@@ -12,11 +12,12 @@ export class AppService {
   private baseUrl = 'https://esi.evetech.net/latest';
   private imageServer = 'https://imageserver.eveonline.com/Character/';
   private ipc: IpcRenderer;
-  public selected = false;
   public path: string;
   public type: CopyType = CopyType.CH;
   public charData: Data[];
   public accData: Data[];
+  public primaryChar: string;
+  public primaryAcc: string;
 
   constructor(public http: HttpClient) {
     this.ipc = (window as any).require('electron').ipcRenderer;
@@ -25,23 +26,15 @@ export class AppService {
   }
 
   public getAllData = (): Observable<Data[]> => {
-    const charObs: Observable<Data[]>  = this.getFiles(new RegExp(`(core_char_)([0-9]+)`))
-      .pipe(
-        map(this.getIdsFromFile),
-        concatMap(files => forkJoin(files.map(this.getCharInfo)))
-      );
-    const accObs: Observable<Data[]>  = this.getFiles(new RegExp(`(core_user_)([0-9]+)`))
-      .pipe(
-        map(this.getIdsFromFile),
-        map(this.getAccInfo)
-      );
+    const charObs: Observable<string[]> = this.getFiles(new RegExp(`(core_char_)([0-9]+)`));
+    const accObs: Observable<string[]> = this.getFiles(new RegExp(`(core_user_)([0-9]+)`));
 
     return forkJoin(charObs, accObs).pipe(
+      map(this.getIds),
+      exhaustMap(this.getInfo),
       map(([a, b]) => [...a, ...b]),
       map(data => data.filter(val => val.name)),
-      map(chars => chars.sort((a, b) => a.name.localeCompare(b.name))),
-      publishReplay(1),
-      refCount()
+      map(chars => chars.sort((a, b) => a.name.localeCompare(b.name)))
     );
   }
 
@@ -110,22 +103,20 @@ export class AppService {
     }).pipe(map(files => files.filter(file => regex.test(file))));
   }
 
-  private getIdsFromFile = (files: string[]) => files.map(val => val.split('_')[2].split('.')[0]);
-
   private getAccInfo = (accs: string[]) =>
-    accs.map(
+    of(accs.map(
       acc =>
-      ({
-        id: acc,
-        name: acc,
-        disabled: true,
-        checked: false,
-        type: 1
-      } as Data)
-    )
+        ({
+          id: acc,
+          name: acc,
+          disabled: true,
+          checked: false,
+          type: 1
+        } as Data)
+    ))
 
-  private getCharInfo = (pid: string): Observable<Data> =>
-    this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`).pipe(
+  private getCharInfo = (pids: string[]): Observable<Data[]> =>
+    forkJoin(pids.map((pid) => this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`).pipe(
       map(
         char =>
           ({
@@ -136,6 +127,11 @@ export class AppService {
             checked: false,
             type: 0
           } as Data)
-      )
-    )
+      ))))
+
+  private getIds = ([a, b]: [string[], string[]]) => [this.getIdsFromFile(a), this.getIdsFromFile(b)];
+
+  private getIdsFromFile = (files: string[]) => files.map(val => val.split('_')[2].split('.')[0]);
+
+  private getInfo = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfo(a), this.getAccInfo(b));
 }

@@ -18,10 +18,6 @@ export class AppComponent implements OnInit {
     this.router.navigate([''], { queryParams: { initial: true } });
   }
 
-  public get selected() {
-    return this.service.selected;
-  }
-
   public get path() {
     return this.service.path;
   }
