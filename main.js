@@ -55,8 +55,6 @@ ipcMain.on('copySettings', (event, arg) => {
   list.forEach(function (str) {
     zip.file(`${pre}${str}.dat`, fs.readFileSync(path.join(dir, `${pre}${str}.dat`)));
   });
-  console.log(arg)
-  console.log(list);
   if (!fs.existsSync(path.join(dir, 'evep'))) {
     fs.mkdirSync(path.join(dir, 'evep'));
   }

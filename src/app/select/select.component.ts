@@ -2,7 +2,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AppService } from './../app.service';
 import { Component, OnInit, NgZone } from '@angular/core';
-import { map, concatMap } from 'rxjs/operators';
+import { concatMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-select',
@@ -34,7 +34,7 @@ export class SelectComponent implements OnInit {
     this.service.setConf(this.selectedConfiguration).subscribe(() => {
       this.zone.run(() => {
         this.service.path = `${this.selectedDrive}/${this.selectedConfiguration}`;
-        this.router.navigate([''], { queryParams: { refresh: true } });
+        this.router.navigate(['']);
         this.dialogRef.close();
       });
     });

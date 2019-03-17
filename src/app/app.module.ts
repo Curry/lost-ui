@@ -18,16 +18,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
-import { CharCopyComponent } from './char-copy/char-copy.component';
-import { AccCopyComponent } from './acc-copy/acc-copy.component';
 import { SelectComponent } from './select/select.component';
 import { CopyComponent } from './copy/copy.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CharCopyComponent,
-    AccCopyComponent,
     SelectComponent,
     CopyComponent
   ],

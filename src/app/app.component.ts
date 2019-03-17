@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.router.navigate([''], { queryParams: { default: true } });
+    this.router.navigate([''], { queryParams: { initial: true } });
   }
 
   public get selected() {
@@ -26,12 +26,8 @@ export class AppComponent implements OnInit {
     return this.service.path;
   }
 
-  public get type() {
-    return this.service.type;
-  }
-
-  public setType(val: CopyType) {
-    this.service.type = val;
+  public setType(val: number) {
+    this.service.type = val === 0 ? CopyType.CH : CopyType.AC;
   }
 
   changeFolder = () => {

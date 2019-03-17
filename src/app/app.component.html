@@ -2,10 +2,10 @@
   <mat-toolbar>
     <div fxFlex=50>
       <mat-button-toggle-group>
-        <mat-button-toggle [checked]="true" (change)="setType('CH')">
+        <mat-button-toggle [checked]="true" (change)="setType(0)">
           Character
         </mat-button-toggle>
-        <mat-button-toggle (change)="setType('AC')">
+        <mat-button-toggle (change)="setType(1)">
           Account
         </mat-button-toggle>
       </mat-button-toggle-group>

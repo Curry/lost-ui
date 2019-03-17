@@ -1,3 +1,4 @@
+import { Copy } from './../models/models';
 import { Data, CopyType } from './../models/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
@@ -10,7 +11,7 @@ import { concatMap, tap } from 'rxjs/operators';
   templateUrl: './copy.component.html',
   styleUrls: ['./copy.component.scss']
 })
-export class CopyComponent implements OnInit {
+export class CopyComponent implements OnInit, Copy {
   primary: string;
   selectAll: boolean;
 
@@ -43,10 +44,10 @@ export class CopyComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      if (params.refresh) {
-        this.refresh();
-      } else {
+      if (params.initial) {
         this.getSettings(true);
+      } else {
+        this.refresh();
       }
     });
   }
@@ -79,12 +80,12 @@ export class CopyComponent implements OnInit {
     });
   }
 
-  copySettings = (type: CopyType) => {
+  copySettings = () => {
     this.service.copySettings(
       this.data.find(val => val.name === this.primary).id,
       this.data.filter(val => val.checked).map(char => char.id)
     )
-    .pipe(tap(this.finalize))
+    .pipe(tap(this.run))
     .subscribe(() => {
       this.zone.run(() => {
         this.snack.open(`${this.typeName} Settings copied!`, 'Dismiss', {
@@ -94,7 +95,7 @@ export class CopyComponent implements OnInit {
     });
   }
 
-  toggleSelect = () => {
+  toggle = () => {
     this.data.forEach(val => {
       if (!val.disabled) {
         val.checked = !val.checked;
@@ -103,7 +104,7 @@ export class CopyComponent implements OnInit {
     this.selectAll = !this.selectAll;
   }
 
-  finalize = () => {
+  run = () => {
     this.zone.run(() => {
       this.data.forEach(val => (val.checked = false));
       this.cdr.detectChanges();

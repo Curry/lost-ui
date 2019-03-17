@@ -11,22 +11,6 @@ export class Character {
   security_status: number;
 }
 
-
-export class Char {
-  id: string;
-  data: Character;
-  profile: string;
-  checked: boolean;
-  disabled: boolean;
-}
-
-export class Acc {
-  checked: boolean;
-  disabled: boolean;
-  id: string;
-  linkChars: Char[];
-}
-
 export class Data {
   id: string;
   name: string;
@@ -35,6 +19,16 @@ export class Data {
   img: string;
   type?: number;
 }
+
+export interface Copy {
+  disable: (value: string) => void;
+  refresh: () => void;
+  getSettings: (refresh: boolean, def: boolean) => void;
+  copySettings: () => void;
+  toggle: () => void;
+  run: () => void;
+}
+
 
 export enum CopyType {
   CH = 'char',

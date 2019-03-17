@@ -12,7 +12,7 @@
         </mat-select>
       </mat-form-field>
       <button mat-raised-button [matBadge]="numChecked" matBadgeColor="accent" [matBadgeHidden]="buttonDisabled" (click)="copySettings()" color="primary" [disabled]="buttonDisabled">Update {{typeName}}</button>
-      <button mat-raised-button (click)="toggleSelect()" color="primary" [disabled]="!primary"><p *ngIf="!selectAll">Select All</p><p *ngIf="selectAll">Deselect All</p></button>
+      <button mat-raised-button (click)="toggle()" color="primary" [disabled]="!primary"><p *ngIf="!selectAll">Select All</p><p *ngIf="selectAll">Deselect All</p></button>
     </div>
     <div class="profile-row" fxLayout="row wrap" fxLayout.xs="column">
       <mat-card *ngFor="let val of data" [ngClass]="{'selected': val.checked, 'disabled': val.disabled}">
