@@ -2,6 +2,10 @@
   "name": "eve-profile",
   "displayName": "Eve Profile",
   "version": "1.0.0",
+  "author": {
+    "email": "curryfurious@gmail.com",
+    "name": "Akaash Suresh"
+  },
   "main": "main.js",
   "scripts": {
     "ng": "ng",
