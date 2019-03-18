@@ -1,0 +1,22 @@
+div.select {
+  text-align: center;
+}
+.mat-form-field {
+  width: 200px;
+}
+
+.mat-card {
+  margin: 15px;
+  width: 175px;
+  height: 70px;
+  .mat-card-header{
+    height: 60px;
+  }
+  .mat-card-avatar {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+}

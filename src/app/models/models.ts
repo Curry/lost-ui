@@ -20,6 +20,11 @@ export class Data {
   type?: number;
 }
 
+export class Backup {
+  file: string;
+  date: Date;
+}
+
 export interface Copy {
   disable: (value: string) => void;
   refresh: () => void;

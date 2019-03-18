@@ -1,3 +1,4 @@
+import { BackupComponent } from './backup/backup.component';
 import { CopyType } from './models/models';
 import { SelectComponent } from './select/select.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -28,5 +29,12 @@ export class AppComponent implements OnInit {
 
   changeFolder = () => {
     this.dialog.open(SelectComponent);
+  }
+
+  openBackups = () => {
+    this.dialog.open(BackupComponent, {
+      minWidth: '300px',
+      minHeight: '250px'
+    });
   }
 }

@@ -1,6 +1,6 @@
 <div>
   <mat-toolbar>
-    <div fxFlex=50>
+    <div fxFlex>
       <mat-button-toggle-group>
         <mat-button-toggle [checked]="true" (change)="setType(0)">
           Character
@@ -10,7 +10,8 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
-    <div fxLayout="row" class="folder" fxFlex=50>
+    <div fxLayout="row" class="folder" fxFlex>
+      <button class="change" mat-flat-button (click)="openBackups()" color="warn">Restore</button>
       <button class="change" mat-flat-button (click)="changeFolder()" color="warn">Change Folder</button>
       <p class="pwd">{{path}}</p>
     </div>

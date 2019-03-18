@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Character, CopyType, Data } from './models/models';
+import { Character, CopyType, Data, Backup } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Observer, forkJoin, of } from 'rxjs';
 import { map, concatMap, tap, switchMap, exhaustMap } from 'rxjs/operators';
@@ -13,9 +13,10 @@ export class AppService {
   private imageServer = 'https://imageserver.eveonline.com/Character/';
   private ipc: IpcRenderer;
   public path: string;
-  public type: CopyType = CopyType.CH;
+  public type: CopyType;
   public charData: Data[];
   public accData: Data[];
+  public backups: Backup[];
   public primaryChar: string;
   public primaryAcc: string;
 
@@ -23,11 +24,21 @@ export class AppService {
     this.ipc = (window as any).require('electron').ipcRenderer;
     this.charData = [];
     this.accData = [];
+    this.type = CopyType.CH;
   }
 
-  public getAllData = (): Observable<Data[]> => {
-    const charObs: Observable<string[]> = this.getFiles(new RegExp(`(core_char_)([0-9]+)`));
-    const accObs: Observable<string[]> = this.getFiles(new RegExp(`(core_user_)([0-9]+)`));
+  public getAllData = (files: string[] = undefined): Observable<Data[]> => {
+    const cReg = /(core_char_)([0-9]+)/;
+    const aReg = /(core_user_)([0-9]+)/;
+    let charObs: Observable<string[]>;
+    let accObs: Observable<string[]>;
+    if (files) {
+      charObs = of(files.filter(file => cReg.test(file)));
+      accObs = of(files.filter(file => aReg.test(file)));
+    } else {
+      charObs = this.getFiles(cReg);
+      accObs = this.getFiles(aReg);
+    }
 
     return forkJoin(charObs, accObs).pipe(
       map(this.getIds),
@@ -65,7 +76,7 @@ export class AppService {
     });
   }
 
-  public setDrive = (dir: string) =>
+  public setDrive = (dir: string): Observable<void> =>
     new Observable(observer => {
       this.ipc.once('setDriveResponse', (event, arg) => {
         observer.next();
@@ -74,7 +85,7 @@ export class AppService {
       this.ipc.send('setDrive', dir);
     })
 
-  public setConf = (dir: string) =>
+  public setConf = (dir: string): Observable<void> =>
     new Observable(observer => {
       this.ipc.once('setConfResponse', (event, arg) => {
         observer.next();
@@ -103,7 +114,43 @@ export class AppService {
     }).pipe(map(files => files.filter(file => regex.test(file))));
   }
 
-  private getAccInfo = (accs: string[]) =>
+  public restoreBackup = (file: string) => {
+    return new Observable((observer: Observer<void>) => {
+      this.ipc.once('restoreBackupResponse', (event, arg) => {
+        observer.next(arg);
+        observer.complete();
+      });
+      this.ipc.send('restoreBackup', file);
+    });
+  }
+
+  public getBackups = (): Observable<Backup[]> => {
+    return new Observable((observer: Observer<string[]>) => {
+      this.ipc.once('getBackupsResponse', (event, arg) => {
+        observer.next(arg);
+        observer.complete();
+      });
+      this.ipc.send('getBackups');
+    }).pipe(
+      map(vals => vals.filter(val => /([a-z]{4})_([0-9]{8})-([0-9]{6}).zip/.test(val))),
+      map(vals => vals.map(this.parseString))
+    );
+  }
+
+  public getBackupInfo = (file: string): Observable<Data[]> => {
+    return new Observable((observer: Observer<string[]>) => {
+      this.ipc.once('getBackupInfoResponse', (event, arg) => {
+        observer.next(arg);
+        observer.complete();
+      });
+      this.ipc.send('getBackupInfo', file);
+    }).pipe(
+      map(this.getIdsFromFile),
+      map(this.getDataFromId)
+    );
+  }
+
+  private getAccInfo = (accs: string[]): Observable<Data[]> =>
     of(accs.map(
       acc =>
         ({
@@ -122,7 +169,7 @@ export class AppService {
           ({
             id: pid,
             name: char ? char.name : undefined,
-            img: `${this.imageServer}${pid}_256.jpg`,
+            img: `${this.imageServer}${pid}_128.jpg`,
             disabled: true,
             checked: false,
             type: 0
@@ -134,4 +181,19 @@ export class AppService {
   private getIdsFromFile = (files: string[]) => files.map(val => val.split('_')[2].split('.')[0]);
 
   private getInfo = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfo(a), this.getAccInfo(b));
+
+  private getDataFromId = (files: string[]) => files.map(file => [...this.charData, ...this.accData].find((val) => val.id === file));
+
+  private parseString = (fileName: string): Backup => {
+    let finalString: string;
+    const dateArray = fileName.substring(5).split('-');
+    const date = dateArray[0];
+    const time = dateArray[1];
+    finalString = `${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)}`;
+    finalString += `T${time.substring(0, 2)}:${time.substring(2, 4)}:${time.substring(4, 6)}Z`;
+    return {
+      file: fileName,
+      date: new Date(finalString)
+    } as Backup;
+  }
 }

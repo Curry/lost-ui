@@ -66,7 +66,36 @@ ipcMain.on('copySettings', (event, arg) => {
       });
       win.webContents.send('copyResponse');
     });
+});
+
+ipcMain.on('getBackups', (event, arg) => {
+  fs.readdir(path.join(dir, 'evep'), (err, data) => {
+    win.webContents.send('getBackupsResponse', data);
+  })
+});
+
+ipcMain.on('getBackupInfo', (event, arg) => {
+  fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
+    JSZip.loadAsync(data).then((zip) => {
+      win.webContents.send('getBackupInfoResponse', Object.keys(zip.files));
+    });
+  });
 })
+
+ipcMain.on('restoreBackup', (event, arg) => {
+  fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
+    JSZip.loadAsync(data).then((zip) => {
+      Object.keys(zip.files).forEach((file) => {
+        zip.file(file).async("nodebuffer").then((val) => {
+          const stream = fs.createWriteStream(path.join(dir, file));
+          stream.write(val);
+          stream.end();
+        });
+      });
+      win.webContents.send('restoreBackupResponse', data);
+    });
+  });
+});
 
 const encodeDate = (date) => {
   const main = date.split("T");

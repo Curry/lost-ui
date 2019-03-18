@@ -53,7 +53,7 @@ export class CopyComponent implements OnInit, Copy {
   }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe().subscribe(params => {
       if (params.initial) {
         this.getSettings(true);
       } else {
@@ -86,6 +86,7 @@ export class CopyComponent implements OnInit, Copy {
           (val.type === 0 ? this.service.charData : this.service.accData).push(val);
         });
         this.primary = '';
+        // this.service.getBackupInfo('char_20190318-034021.zip').subscribe((val) => console.log(val));
       });
     });
   }

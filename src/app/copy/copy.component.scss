@@ -19,10 +19,17 @@ div.prompt{
 }
 .mat-card {
   margin: 15px;
-  width: 200px;
-  height: 100px;
+  width: 275px;
+  height: 150px;
   .mat-card-header{
-    height: 60px;
+    height: 100px;
+  }
+  .mat-card-avatar {
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
   }
 }
 
