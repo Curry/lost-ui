@@ -10,8 +10,7 @@
     </mat-form-field>
   </div>
   <div>
-    <button mat-flat-button [disabled]="!selectedBackup" (click)="restoreBackup(selectedBackup)" color="primary">Select
-      Folder</button>
+    <button mat-flat-button [disabled]="!selectedBackup" (click)="restoreBackup(selectedBackup)" color="accent">Restore</button>
   </div>
   <div *ngIf="data">
     <h2>Following {{type}} will be restored</h2>
