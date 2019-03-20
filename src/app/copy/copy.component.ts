@@ -15,7 +15,11 @@ export class CopyComponent implements OnInit, Copy {
               private snack: MatSnackBar) { }
 
   public get data() {
-    return this.type === CopyType.CH ? this.service.charData : this.service.accData;
+    return this.service.data.filter((val) => val.type === (this.type === CopyType.CH ? 0 : 1));
+  }
+
+  public set data(val: Data[]) {
+    this.service.data = val;
   }
 
   public get primary() {
@@ -80,8 +84,7 @@ export class CopyComponent implements OnInit, Copy {
   }
 
   refresh = () => {
-    this.service.accData = [];
-    this.service.charData = [];
+    this.data = [];
     this.getSettings();
   }
 
@@ -92,11 +95,8 @@ export class CopyComponent implements OnInit, Copy {
 
     setObs.subscribe((data: Data[]) => {
       this.zone.run(() => {
-        data.forEach((val) => {
-          (val.type === 0 ? this.service.charData : this.service.accData).push(val);
-        });
+        this.data = data;
         this.primary = '';
-        this.service.importChars().subscribe((val) => console.log(val));
       });
     });
   }

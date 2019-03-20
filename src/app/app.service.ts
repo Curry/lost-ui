@@ -18,14 +18,14 @@ export class AppService {
   public selectAllAcc: boolean;
   public charData: Data[];
   public accData: Data[];
+  public data: Data[];
   public backups: Backup[];
   public primaryChar: string;
   public primaryAcc: string;
 
   constructor(public http: HttpClient) {
     this.ipc = (window as any).require('electron').ipcRenderer;
-    this.charData = [];
-    this.accData = [];
+    this.data = [];
     this.selectAllChar = false;
     this.selectAllAcc = false;
     this.type = CopyType.CH;
@@ -97,13 +97,23 @@ export class AppService {
       this.ipc.send('setConf', dir);
     })
 
-  public copySettings = (main: string, accs: string[]): Observable<void> => {
+  public copySettings = (main: string, vals: string[]): Observable<void> => {
     return new Observable(observer => {
       this.ipc.once('copyResponse', (event, arg) => {
         observer.next();
         observer.complete();
       });
-      this.ipc.send('copySettings', [this.type === CopyType.CH ? 'char' : 'user', main, ...accs]);
+      this.ipc.send('copySettings', [this.type === CopyType.CH ? 'char' : 'user', main, ...vals]);
+    });
+  }
+
+  public importAll = (vals: { type: number; id: string; }[]): Observable<void> => {
+    return new Observable(observer => {
+      this.ipc.once('importAllResponse', (event, arg) => {
+        observer.next();
+        observer.complete();
+      });
+      this.ipc.send('importAll', vals);
     });
   }
 
@@ -127,13 +137,13 @@ export class AppService {
     });
   }
 
-  public importChars = () => {
+  public getImports = () => {
     return new Observable((observer: Observer<string[]>) => {
-      this.ipc.once('importCharsResponse', (event, arg) => {
+      this.ipc.once('getImportsResponse', (event, arg) => {
         observer.next(arg);
         observer.complete();
       });
-      this.ipc.send('importChars');
+      this.ipc.send('getImports');
     }).pipe(mergeMap(this.getAllData));
   }
 

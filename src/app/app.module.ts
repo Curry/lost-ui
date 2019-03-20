@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatListModule } from '@angular/material/list';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -46,6 +47,7 @@ import { ImportComponent } from './import/import.component';
     MatDialogModule,
     MatToolbarModule,
     MatButtonToggleModule,
+    MatListModule,
     MatSelectModule,
     FormsModule,
     HttpClientModule
