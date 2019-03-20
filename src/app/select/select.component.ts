@@ -2,7 +2,6 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AppService } from './../app.service';
 import { Component, OnInit, NgZone } from '@angular/core';
-import { concatMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-select',

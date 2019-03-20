@@ -32,10 +32,8 @@ export class Backup {
 export interface Copy {
   disable: (value: string) => void;
   refresh: () => void;
-  getSettings: (refresh: boolean, def: boolean) => void;
   copySettings: () => void;
   toggle: () => void;
-  run: () => void;
 }
 
 

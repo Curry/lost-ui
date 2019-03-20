@@ -4,7 +4,7 @@ import { CopyType } from './models/models';
 import { SelectComponent } from './select/select.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AppService } from './app.service';
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({

@@ -2,8 +2,8 @@ import { IpcService } from './ipc.service';
 import { Injectable } from '@angular/core';
 import { Character, CopyType, Data, Backup, Base } from './models/models';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Observer, forkJoin, of } from 'rxjs';
-import { map, concatMap, tap, switchMap, exhaustMap, mergeMap } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, concatMap, mergeMap, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -27,47 +27,9 @@ export class AppService {
     this.type = CopyType.CH;
   }
 
-  public getAllData = (files: string[] = undefined): Observable<Data[]> => {
-    const cReg = /(core_char_)([0-9]+)/;
-    const aReg = /(core_user_)([0-9]+)/;
-    let charObs: Observable<string[]>;
-    let accObs: Observable<string[]>;
-    if (files) {
-      charObs = of(files.filter(file => cReg.test(file)));
-      accObs = of(files.filter(file => aReg.test(file)));
-    } else {
-      charObs = this.getFiles(cReg);
-      accObs = this.getFiles(aReg);
-    }
+  public getAllData = (def: boolean = false) => (def ? this.navigateDefault() : of(this.path)).pipe(concatMap(this.getData));
 
-    return forkJoin(charObs, accObs).pipe(
-      map(this.getIds),
-      exhaustMap(this.getInfo),
-      map(([a, b]) => [...a, ...b]),
-      map(chars => chars.sort((a, b) => a.name.localeCompare(b.name)))
-    );
-  }
-
-  public navigateDefault = () =>
-    this.ipc.resetDir().pipe(
-      switchMap(() => this.getFiles(/([a-z]{1})(.*)(tq)/)),
-      map(files => files[0]),
-      tap(file => {
-        this.path = file;
-      }),
-      concatMap(this.ipc.setDrive),
-      switchMap(() => this.getFiles(/(settings)/)),
-      map(files => files[0]),
-      tap(file => {
-        this.path += `/${file}`;
-      }),
-      switchMap(this.ipc.setConf)
-    )
-
-  public getFiles = (regex: RegExp): Observable<string[]> =>
-    this.ipc.getFiles().pipe(map(files => files.filter(file => regex.test(file))))
-
-  public getImports = () => this.ipc.getImports().pipe(mergeMap(this.getAllData));
+  public getImports = () => this.ipc.getImports().pipe(mergeMap(this.getData));
 
   public getBackups = (): Observable<Backup[]> =>
     this.ipc.getBackups().pipe(
@@ -82,11 +44,9 @@ export class AppService {
     )
 
   public resetDir = () =>
-    this.ipc.resetDir().pipe(
-      concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/))
-    )
+    this.ipc.resetDir().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)))
 
-  public setConf = (dir: string) => this.ipc.setConf(dir);
+  public setConf = (dir: string) => this.ipc.setConf(dir);
 
   public setDrive = (dir: string) => this.ipc.setDrive(dir).pipe(concatMap(() => this.getFiles(/(settings)/)));
 
@@ -95,6 +55,27 @@ export class AppService {
   public copySettings = (main: string, vals: string[]): Observable<void> => this.ipc.copySettings(this.type, main, vals);
 
   public restoreBackup = (zFile: string) => this.ipc.restoreBackup(zFile);
+
+  private getData = (): Observable<Data[]> =>
+    forkJoin(
+      this.getFiles(/(core_char_)([0-9]+)/),
+      this.getFiles(/(core_user_)([0-9]+)/)
+    ).pipe(
+      map(this.getIds),
+      concatMap(this.getInfo),
+      map(([a, b]) => [...a, ...b]),
+      map(chars => chars.sort((a, b) => a.name.localeCompare(b.name)))
+    )
+
+  private navigateDefault = () =>
+    this.ipc.resetDir().pipe(
+      concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq)/)),
+      map(files => files[0]),
+      concatMap(this.ipc.setDrive),
+      concatMap(() => this.getFiles(/(settings)/)),
+      map(files => files[0]),
+      concatMap(this.ipc.setConf)
+    )
 
   private getAccInfo = (accs: string[]): Observable<Data[]> =>
     of(
@@ -129,9 +110,13 @@ export class AppService {
       )
     )
 
+
+  private getFiles = (regex: RegExp): Observable<string[]> =>
+    this.ipc.getFiles().pipe(map(files => files.filter(file => regex.test(file))))
+
   private getIds = ([a, b]: [string[], string[]]) => [this.getIdsFromFile(a), this.getIdsFromFile(b)];
 
-  private getIdsFromFile = (files: string[]) => files.map(val => val.split('_')[2].split('.')[0]);
+  private getIdsFromFile = (files: string[]) => files.map(val => /[0-9]+/.exec(val)[0]);
 
   private getInfo = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfo(a), this.getAccInfo(b));
 

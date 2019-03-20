@@ -68,11 +68,7 @@ export class CopyComponent implements OnInit, Copy {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      if (params.initial) {
-        this.getSettings(true);
-      } else {
-        this.refresh();
-      }
+      this.refresh(params.initial);
     });
   }
 
@@ -83,17 +79,9 @@ export class CopyComponent implements OnInit, Copy {
       .forEach((val) => val.disabled = false);
   }
 
-  refresh = () => {
+  refresh = (def: boolean = false) => {
     this.data = [];
-    this.getSettings();
-  }
-
-  getSettings = (def: boolean = false) => {
-    const setObs = def ? this.service.navigateDefault().pipe(
-      concatMap(() => this.service.getAllData())
-    ) : this.service.getAllData();
-
-    setObs.subscribe((data: Data[]) => {
+    this.service.getAllData(def).subscribe((data: Data[]) => {
       this.zone.run(() => {
         this.data = data;
         this.primary = '';
@@ -106,9 +94,10 @@ export class CopyComponent implements OnInit, Copy {
       this.data.find(val => val.name === this.primary).id,
       this.data.filter(val => val.checked).map(char => char.id)
     )
-    .pipe(tap(this.run))
     .subscribe(() => {
       this.zone.run(() => {
+        this.data.forEach(val => (val.checked = false));
+        this.cdr.detectChanges();
         this.snack.open(`${this.typeName} Settings copied!`, 'Dismiss', {
           duration: 5000
         });
@@ -122,13 +111,6 @@ export class CopyComponent implements OnInit, Copy {
       if (!val.disabled) {
         val.checked = this.selectAll;
       }
-    });
-  }
-
-  run = () => {
-    this.zone.run(() => {
-      this.data.forEach(val => (val.checked = false));
-      this.cdr.detectChanges();
     });
   }
 
