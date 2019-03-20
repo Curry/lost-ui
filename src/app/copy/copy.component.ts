@@ -34,15 +34,7 @@ export class CopyComponent implements OnInit {
   }
 
   public get selectAll() {
-    return this.type === 'char' ? this.service.selectAllChar : this.service.selectAllAcc;
-  }
-
-  public set selectAll(val: boolean) {
-    if (this.type === 'char') {
-      this.service.selectAllChar = val;
-    } else {
-      this.service.selectAllAcc = val;
-    }
+    return this.data.reduce((acc, curr) => acc += curr.checked ? 1 : 0, 0) === this.data.length - 1;
   }
 
   public get names() {
@@ -73,6 +65,7 @@ export class CopyComponent implements OnInit {
 
   disable = (value: string) => {
     this.data.find((val) => val.name === value).disabled = true;
+    this.data.find((val) => val.name === value).checked = false;
     this.data
       .filter((val) => val.disabled && val.name !== value)
       .forEach((val) => val.disabled = false);
@@ -86,7 +79,9 @@ export class CopyComponent implements OnInit {
         this.primary = '';
       });
     }, () => {}, () => {
-      this.zone.run(() => {});
+      this.zone.run(() => {
+        // this.selectAll = false;
+      });
     });
   }
 
@@ -98,6 +93,7 @@ export class CopyComponent implements OnInit {
     .subscribe(() => {
       this.zone.run(() => {
         this.data.forEach(val => (val.checked = false));
+        // this.selectAll = false;
         this.cdr.detectChanges();
         this.snack.open(`${this.typeName} Settings copied!`, 'Dismiss', {
           duration: 5000
@@ -107,10 +103,9 @@ export class CopyComponent implements OnInit {
   }
 
   toggle = () => {
-    this.selectAll = !this.selectAll;
     this.data.forEach(val => {
       if (!val.disabled) {
-        val.checked = this.selectAll;
+        val.checked = !this.selectAll;
       }
     });
   }

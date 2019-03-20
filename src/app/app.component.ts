@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
   }
 
   changeFolder = () => {
-    this.dialog.open(SelectComponent);
+    this.dialog.open(SelectComponent, { disableClose: true });
   }
 
   openBackups = () => {

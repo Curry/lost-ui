@@ -13,16 +13,12 @@ export class AppService {
   private imageServer = 'https://imageserver.eveonline.com/Character/';
   public path: string;
   public type: TypeValue;
-  public selectAllChar: boolean;
-  public selectAllAcc: boolean;
   public data: Data[];
   public primaryChar: string;
   public primaryAcc: string;
 
   constructor(private http: HttpClient, private ipc: IpcService) {
     this.data = [];
-    this.selectAllChar = false;
-    this.selectAllAcc = false;
     this.type = 'char';
   }
 
