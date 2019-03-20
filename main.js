@@ -151,12 +151,12 @@ const encodeDate = (date) => {
 const createWindow = () => {
   win = new BrowserWindow({
     width: 1200,
-    height: 1200,
-    icon: './src/favicon.ico'
+    height: 1200
   });
 
   if (serve) {
     win.loadURL('http://localhost:4200');
+    win.webContents.openDevTools();
   } else {
     win.loadURL(url.format({
       pathname: path.join(__dirname, 'dist/index.html'),
@@ -164,11 +164,6 @@ const createWindow = () => {
       slashes: true
     }));
   }
-
-  if (serve) {
-    win.webContents.openDevTools();
-  }
-
   win.on('closed', () => {
     win = null;
   });
