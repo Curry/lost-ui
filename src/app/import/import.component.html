@@ -1,24 +1,31 @@
 <div class="import">
-  <h2>Import</h2>
-  <mat-list>
-    <div fxLayout="row">
-      <div *ngIf="hasNewChars">
-        <h3 matSubheader>Characters</h3>
-        <mat-selection-list [(ngModel)]="selectedChars">
-          <mat-list-option *ngFor="let char of characters" [value]="char.id">
-            {{char.name}}
-          </mat-list-option>
-        </mat-selection-list>
+  <div *ngIf="ready && !hasNewChars && !hasNewAccs">
+    <h4>Nothing to Import</h4>
+    <button mat-flat-button mat-dialog-close color="warn">Close</button>
+  </div>
+  <div *ngIf="ready && hasNewChars && hasNewAccs">
+    <h2>Import</h2>
+    <mat-list>
+      <div fxLayout="row">
+        <div *ngIf="hasNewChars">
+          <h3 matSubheader>Characters</h3>
+          <mat-selection-list [(ngModel)]="selectedChars">
+            <mat-list-option *ngFor="let char of characters" [value]="char.id">
+              {{char.name}}
+            </mat-list-option>
+          </mat-selection-list>
+        </div>
+        <div *ngIf="hasNewAccs">
+          <h3 matSubheader>Accounts</h3>
+          <mat-selection-list [(ngModel)]="selectedAccs">
+            <mat-list-option *ngFor="let acc of accounts" [value]="acc.id">
+              {{acc.name}}
+            </mat-list-option>
+          </mat-selection-list>
+        </div>
       </div>
-      <div *ngIf="hasNewAccs">
-        <h3 matSubheader>Accounts</h3>
-        <mat-selection-list [(ngModel)]="selectedAccs">
-          <mat-list-option *ngFor="let acc of accounts" [value]="acc.id">
-            {{acc.name}}
-          </mat-list-option>
-        </mat-selection-list>
-      </div>
-    </div>
-  </mat-list>
-  <button mat-flat-button (click)="import()" color="primary">Import Selected</button>
+    </mat-list>
+    <button mat-flat-button (click)="import()"color="primary">Import Selected</button>
+    <button mat-flat-button (click)="importAll()" color="primary">Import All</button>
+  </div>
 </div>

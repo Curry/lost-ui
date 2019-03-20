@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Character, CopyType, Data, Backup } from './models/models';
+import { Character, CopyType, Data, Backup, Base } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Observer, forkJoin, of } from 'rxjs';
 import { map, concatMap, tap, switchMap, exhaustMap, mergeMap } from 'rxjs/operators';
@@ -16,8 +16,6 @@ export class AppService {
   public type: CopyType;
   public selectAllChar: boolean;
   public selectAllAcc: boolean;
-  public charData: Data[];
-  public accData: Data[];
   public data: Data[];
   public backups: Backup[];
   public primaryChar: string;
@@ -107,7 +105,7 @@ export class AppService {
     });
   }
 
-  public importAll = (vals: { type: number; id: string; }[]): Observable<void> => {
+  public importAll = (vals: Base[]): Observable<void> => {
     return new Observable(observer => {
       this.ipc.once('importAllResponse', (event, arg) => {
         observer.next();
@@ -125,6 +123,16 @@ export class AppService {
       });
       this.ipc.send('getFiles');
     }).pipe(map(files => files.filter(file => regex.test(file))));
+  }
+
+  public createProfile = (profile: string): Observable<void> => {
+    return new Observable(observer => {
+      this.ipc.once('createProfileResponse', (event, arg) => {
+        observer.next();
+        observer.complete();
+      });
+      this.ipc.send('createProfile');
+    });
   }
 
   public restoreBackup = (file: string) => {
@@ -205,7 +213,7 @@ export class AppService {
 
   private getInfo = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfo(a), this.getAccInfo(b));
 
-  private getDataFromId = (files: string[]) => files.map(file => [...this.charData, ...this.accData].find((val) => val.id === file));
+  private getDataFromId = (files: string[]) => files.map(file => this.data.find((val) => val.id === file));
 
   private parseString = (fileName: string): Backup => {
     let finalString: string;

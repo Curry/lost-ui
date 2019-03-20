@@ -97,7 +97,7 @@ ipcMain.on('getImports', (event, arg) => {
       files = fs.readdirSync(path.join(baseDir, driveDir, val)).filter((val) => /(core)_([a-z]{4})_([0-9]+)/.test(val));
       uniqueFiles.push(...files);
     });
-    win.webContents.send('getImportsResponse', uniqueFiles);
+    win.webContents.send('getImportsResponse', Array.from(new Set(uniqueFiles)));
   });
 });
 

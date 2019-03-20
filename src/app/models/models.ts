@@ -11,13 +11,16 @@ export class Character {
   security_status: number;
 }
 
-export class Data {
+export class Base {
+  type: number;
   id: string;
+}
+
+export class Data extends Base {
   name: string;
   checked: boolean;
   disabled: boolean;
   img: string;
-  type: number;
   link?: Data;
 }
 
