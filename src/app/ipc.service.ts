@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { IpcRenderer } from 'electron';
-import { Base, CopyType } from './models/models';
+import { Base, TypeValue } from './models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +20,8 @@ export class IpcService {
 
   public setConf = (dir: string): Observable<string> => this.generateObservable('setConf', dir);
 
-  public copySettings = (type: CopyType, main: string, vals: string[]): Observable<void> =>
-    this.generateObservable('copy', [type === CopyType.CH ? 'char' : 'user', main, ...vals])
+  public copySettings = (type: TypeValue, main: string, vals: string[]): Observable<void> =>
+    this.generateObservable('copy', [type, main, ...vals])
 
   public importAll = (vals: Base[]): Observable<void> => this.generateObservable('importAll', vals);
 
@@ -37,7 +37,7 @@ export class IpcService {
 
   private generateObservable = <T, S>(command: string, args?: T) =>
     new Observable((observer: Observer<S>) => {
-      this.ipc.once(`${command}${this.response}`, (event, arg) => {
+      this.ipc.once(`${command}${this.response}`, (event: any, arg: S) => {
         observer.next(arg);
         observer.complete();
       });

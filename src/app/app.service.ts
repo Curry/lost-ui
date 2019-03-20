@@ -1,6 +1,6 @@
 import { IpcService } from './ipc.service';
 import { Injectable } from '@angular/core';
-import { Character, CopyType, Data, Backup, Base } from './models/models';
+import { Character, TypeValue, Data, Backup, Base } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, concatMap, mergeMap, tap } from 'rxjs/operators';
@@ -12,7 +12,7 @@ export class AppService {
   private baseUrl = 'https://esi.evetech.net/latest';
   private imageServer = 'https://imageserver.eveonline.com/Character/';
   public path: string;
-  public type: CopyType;
+  public type: TypeValue;
   public selectAllChar: boolean;
   public selectAllAcc: boolean;
   public data: Data[];
@@ -24,7 +24,7 @@ export class AppService {
     this.data = [];
     this.selectAllChar = false;
     this.selectAllAcc = false;
-    this.type = CopyType.CH;
+    this.type = 'char';
   }
 
   public getAllData = (def: boolean = false) => (def ? this.navigateDefault() : of(this.path)).pipe(concatMap(this.getData));
