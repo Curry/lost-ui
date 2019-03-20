@@ -21,10 +21,7 @@ export class SelectComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.resetDir()
-      .pipe(
-        concatMap(() => this.service.getFiles(/([a-z]{1})(.*)(tq|sisi)/))
-      ).subscribe((val) => {
+    this.service.resetDir().subscribe((val) => {
         this.allDrives = val;
         this.selectedDrive = '';
       });
@@ -41,10 +38,7 @@ export class SelectComponent implements OnInit {
   }
 
   getConfig = (drive: string) => {
-    this.service.setDrive(drive)
-      .pipe(
-        concatMap(() => this.service.getFiles(/(settings)/))
-      ).subscribe((val) => {
+    this.service.setDrive(drive).subscribe((val) => {
         this.allConfigurations = val;
         this.selectedConfiguration = '';
       });
