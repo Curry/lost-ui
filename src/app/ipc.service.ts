@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { IpcRenderer } from 'electron';
-import { Base, TypeValue } from './models/models';
+import { TypeValue, FileData, RawData } from './models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -23,17 +23,19 @@ export class IpcService {
   public copySettings = (type: TypeValue, main: string, vals: string[]): Observable<void> =>
     this.generateObservable('copy', [type, main, ...vals])
 
-  public importAll = (vals: Base[]): Observable<void> => this.generateObservable('importAll', vals);
+  public importAll = (vals: RawData[]): Observable<void> => this.generateObservable('importAll', vals);
 
   public getFiles = (): Observable<string[]> => this.generateObservable('getFiles');
 
+  public getDataFiles = (): Observable<FileData[]> => this.generateObservable('getDataFiles');
+
   public restoreBackup = (file: string): Observable<void> => this.generateObservable('restoreBackup', file);
 
-  public getImports = (): Observable<string[]> => this.generateObservable('getImports');
+  public getImports = (): Observable<FileData[]> => this.generateObservable('getImports');
 
   public getBackups = (): Observable<string[]> => this.generateObservable('getBackups');
 
-  public getBackupInfo = (file: string): Observable<string[]> => this.generateObservable('getBackupInfo', file);
+  public getBackupInfo = (file: string): Observable<FileData[]> => this.generateObservable('getBackupInfo', file);
 
   private generateObservable = <T, S>(command: string, args?: T) =>
     new Observable((observer: Observer<S>) => {

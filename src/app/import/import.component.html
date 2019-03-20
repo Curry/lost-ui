@@ -1,31 +1,42 @@
 <div class="import">
-  <div *ngIf="ready && !hasNewChars && !hasNewAccs">
+  <mat-spinner *ngIf="!ready"></mat-spinner>
+  <div *ngIf="ready && !hasData()">
     <h4>Nothing to Import</h4>
     <button mat-flat-button mat-dialog-close color="warn">Close</button>
   </div>
-  <div *ngIf="ready && hasNewChars && hasNewAccs">
+  <div *ngIf="ready && hasData()">
     <h2>Import</h2>
-    <mat-list>
-      <div fxLayout="row">
-        <div *ngIf="hasNewChars">
-          <h3 matSubheader>Characters</h3>
-          <mat-selection-list [(ngModel)]="selectedChars">
-            <mat-list-option *ngFor="let char of characters" [value]="char.id">
-              {{char.name}}
-            </mat-list-option>
-          </mat-selection-list>
-        </div>
-        <div *ngIf="hasNewAccs">
-          <h3 matSubheader>Accounts</h3>
-          <mat-selection-list [(ngModel)]="selectedAccs">
-            <mat-list-option *ngFor="let acc of accounts" [value]="acc.id">
-              {{acc.name}}
-            </mat-list-option>
-          </mat-selection-list>
-        </div>
-      </div>
-    </mat-list>
-    <button mat-flat-button (click)="import()"color="primary">Import Selected</button>
-    <button mat-flat-button (click)="importAll()" color="primary">Import All</button>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let profileName of profileNames">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{profileName}}</mat-panel-title>
+          <mat-panel-description></mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-list>
+          <div fxLayout="row">
+            <div *ngIf="hasChars(profileName)">
+              <h3 matSubheader>Characters</h3>
+              <mat-selection-list [(ngModel)]="selectedChars[profileName]">
+                <mat-list-option *ngFor="let char of getChars(profileName)" [value]="char">
+                  {{char.name}}
+                </mat-list-option>
+              </mat-selection-list>
+            </div>
+            <div *ngIf="hasAccs(profileName)">
+              <h3 matSubheader>Accounts</h3>
+              <mat-selection-list [(ngModel)]="selectedAccs[profileName]">
+                <mat-list-option *ngFor="let acc of getAccs(profileName)" [value]="acc">
+                  {{acc.name}}
+                </mat-list-option>
+              </mat-selection-list>
+            </div>
+          </div>
+        </mat-list>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <div class="import-buttons">
+        <button mat-stroked-button (click)="import(false)" color="primary">Import Selected</button>
+        <button mat-stroked-button (click)="import(true)" color="primary">Import All</button>
+    </div>
   </div>
 </div>

@@ -15,6 +15,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -47,6 +49,8 @@ import { ImportComponent } from './import/import.component';
     MatDialogModule,
     MatToolbarModule,
     MatButtonToggleModule,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
     MatListModule,
     MatSelectModule,
     FormsModule,

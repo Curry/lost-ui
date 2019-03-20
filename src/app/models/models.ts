@@ -11,18 +11,33 @@ export class Character {
   security_status: number;
 }
 // tslint:enable variable-name
-
-export class Base {
-  type: number;
-  id: string;
+export class RawData {
+  profileName: string;
+  fileName: string;
 }
-
-export class Data extends Base {
+export class FileData extends RawData {
+  id: string;
+  type: number;
+}
+export class Data extends FileData {
   name: string;
-  checked: boolean;
-  disabled: boolean;
   img: string;
   link?: Data;
+  checked: boolean;
+  disabled: boolean;
+
+  constructor(fileData: FileData, name?: string, img?: string, link?: Data) {
+    super();
+    this.profileName = fileData.profileName;
+    this.fileName = fileData.fileName;
+    this.id = fileData.id;
+    this.type = fileData.type;
+    this.name = name ? name : fileData.id;
+    this.img = img;
+    this.checked = false;
+    this.disabled = true;
+    this.link = link;
+  }
 }
 
 export class Backup {

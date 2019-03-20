@@ -77,27 +77,52 @@ ipcMain.on('getBackups', (event, arg) => {
 ipcMain.on('getBackupInfo', (event, arg) => {
   fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
     JSZip.loadAsync(data).then((zip) => {
-      win.webContents.send('getBackupInfoResponse', Object.keys(zip.files));
+      const files = Object.keys(zip.files).map(file => ({
+        location: `${driveDir}/${confDir}`,
+        fileName: file,
+        id: /[0-9]+/.exec(file)[0],
+        type: /(char)/.test(file) ? 0 : 1
+      }));
+      win.webContents.send('getBackupInfoResponse', files);
     });
   });
 });
 
 ipcMain.on('importAll', (event, arg) => {
   arg.forEach((val) => {
-    const file = `core_${val.type === 0 ? 'char' : 'user'}_${val.id}.dat`;
-    fs.closeSync(fs.openSync(path.join(dir, file), 'w'))
+    fs.copyFileSync(path.join(baseDir, driveDir, val.profileName, val.fileName), path.join(baseDir, driveDir, confDir, val.fileName))
   });
   win.webContents.send('importAllResponse');
 });
 
+ipcMain.on('getDataFiles', (event, arg) => {
+  fs.readdir(path.join(baseDir, driveDir, confDir), (err, data) => {
+    const files = (data ? data : [])
+    .filter(file => /(core)_([a-z]{4})_([0-9]+)(\.dat)/.test(file))
+    .map(file => ({
+      profileName: confDir,
+      fileName: file,
+      id: /[0-9]+/.exec(file)[0],
+      type: /(char)/.test(file) ? 0 : 1
+    }));
+    win.webContents.send('getDataFilesResponse', files);
+  });
+})
+
 ipcMain.on('getImports', (event, arg) => {
-  uniqueFiles = [];
+  allFileData = [];
   fs.readdir(path.join(baseDir, driveDir), (err, data) => {
     data.filter((val) => /(settings)/.test(val)).forEach((val) => {
       files = fs.readdirSync(path.join(baseDir, driveDir, val)).filter((val) => /(core)_([a-z]{4})_([0-9]+)/.test(val));
-      uniqueFiles.push(...files);
+      const fileData = files.map((file) => ({
+        profileName: val,
+        fileName: file,
+        id: /[0-9]+/.exec(file)[0],
+        type: /(char)/.test(file) ? 0 : 1
+      }));
+      allFileData.push(...fileData);
     });
-    win.webContents.send('getImportsResponse', Array.from(new Set(uniqueFiles)));
+    win.webContents.send('getImportsResponse', allFileData);
   });
 });
 
