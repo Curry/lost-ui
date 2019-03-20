@@ -27,9 +27,9 @@ export class SelectComponent implements OnInit {
   }
 
   setConfig = () => {
-    this.service.setConf(this.selectedConfiguration).subscribe(() => {
+    this.service.setConf(this.selectedConfiguration).subscribe((path) => {
       this.zone.run(() => {
-        this.service.path = `${this.selectedDrive}/${this.selectedConfiguration}`;
+        this.service.path = path;
         this.router.navigate(['']);
         this.dialogRef.close();
       });

@@ -27,7 +27,10 @@ export class AppService {
     this.type = 'char';
   }
 
-  public getAllData = (def: boolean = false) => (def ? this.navigateDefault() : of(this.path)).pipe(concatMap(this.getData));
+  public getAllData = (def: boolean = false) => (def ? this.navigateDefault() : of(this.path)).pipe(
+    tap(path => this.path = path),
+    concatMap(this.getData)
+  )
 
   public getImports = () => this.ipc.getImports().pipe(mergeMap(this.getData));
 
