@@ -21,21 +21,6 @@ export class Data {
   link?: Data;
 }
 
-export class BaseData {
-  id: string;
-  name: string;
-  checked: boolean;
-  disabled: boolean;
-}
-
-export class CharacterData extends BaseData {
-  img: string;
-}
-
-export class AccountData extends BaseData {
-  link?: CharacterData;
-}
-
 export class Backup {
   file: string;
   date: Date;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Character, CopyType, Data, Backup, AccountData, CharacterData } from './models/models';
+import { Character, CopyType, Data, Backup } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Observer, forkJoin, of } from 'rxjs';
 import { map, concatMap, tap, switchMap, exhaustMap, mergeMap } from 'rxjs/operators';
@@ -18,8 +18,6 @@ export class AppService {
   public selectAllAcc: boolean;
   public charData: Data[];
   public accData: Data[];
-  public charDataV2: CharacterData[];
-  public accDataV2: AccountData[];
   public backups: Backup[];
   public primaryChar: string;
   public primaryAcc: string;
@@ -50,20 +48,7 @@ export class AppService {
       map(this.getIds),
       exhaustMap(this.getInfo),
       map(([a, b]) => [...a, ...b]),
-      map(data => data.filter(val => val.name)),
       map(chars => chars.sort((a, b) => a.name.localeCompare(b.name)))
-    );
-  }
-
-  public getAllDataV2 = () => {
-    const charObs: Observable<string[]> = this.getFiles(/(core_char_)([0-9]+)/);
-    const accObs: Observable<string[]> = this.getFiles(/(core_user_)([0-9]+)/);
-
-    return forkJoin(charObs, accObs).pipe(
-      map(this.getIds),
-      exhaustMap(this.getInfoV2),
-      map(([char, acc]): [CharacterData[], AccountData[]] => [char.sort((a, b) => a.name.localeCompare(b.name)),
-        acc.sort((a, b) => a.name.localeCompare(b.name))])
     );
   }
 
@@ -204,37 +189,11 @@ export class AppService {
           } as Data)
       ))))
 
-  private getAccInfoV2 = (accs: string[]): Observable<AccountData[]> =>
-    of(accs.map(
-      acc =>
-        ({
-          id: acc,
-          name: acc,
-          disabled: true,
-          checked: false
-        } as AccountData)
-    ))
-
-  private getCharInfoV2 = (pids: string[]): Observable<CharacterData[]> =>
-    forkJoin(pids.map((pid) => this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`).pipe(
-      map(
-        char =>
-          ({
-            id: pid,
-            name: char ? char.name : undefined,
-            img: `${this.imageServer}${pid}_128.jpg`,
-            disabled: true,
-            checked: false
-          } as CharacterData)
-      ))))
-
   private getIds = ([a, b]: [string[], string[]]) => [this.getIdsFromFile(a), this.getIdsFromFile(b)];
 
   private getIdsFromFile = (files: string[]) => files.map(val => val.split('_')[2].split('.')[0]);
 
   private getInfo = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfo(a), this.getAccInfo(b));
-
-  private getInfoV2 = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfoV2(a), this.getAccInfoV2(b));
 
   private getDataFromId = (files: string[]) => files.map(file => [...this.charData, ...this.accData].find((val) => val.id === file));
 

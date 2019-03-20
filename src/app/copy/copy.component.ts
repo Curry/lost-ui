@@ -83,7 +83,6 @@ export class CopyComponent implements OnInit, Copy {
     this.service.accData = [];
     this.service.charData = [];
     this.getSettings();
-    this.getSettingsV2();
   }
 
   getSettings = (def: boolean = false) => {
@@ -98,19 +97,6 @@ export class CopyComponent implements OnInit, Copy {
         });
         this.primary = '';
         this.service.importChars().subscribe((val) => console.log(val));
-      });
-    });
-  }
-
-  getSettingsV2 = (def: boolean = false) => {
-    const setObs = def ? this.service.navigateDefault().pipe(
-      concatMap(this.service.getAllDataV2),
-    ) : this.service.getAllDataV2();
-
-    setObs.subscribe(([chars, accs]) => {
-      this.zone.run(() => {
-        this.service.charDataV2 = chars;
-        this.service.accDataV2 = accs;
       });
     });
   }
