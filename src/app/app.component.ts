@@ -1,3 +1,4 @@
+import { ImportComponent } from './import/import.component';
 import { BackupComponent } from './backup/backup.component';
 import { CopyType } from './models/models';
 import { SelectComponent } from './select/select.component';
@@ -36,5 +37,9 @@ export class AppComponent implements OnInit {
       minWidth: '300px',
       minHeight: '250px'
     });
+  }
+
+  import = () => {
+    this.dialog.open(ImportComponent);
   }
 }

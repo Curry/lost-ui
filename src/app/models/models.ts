@@ -17,7 +17,23 @@ export class Data {
   checked: boolean;
   disabled: boolean;
   img: string;
-  type?: number;
+  type: number;
+  link?: Data;
+}
+
+export class BaseData {
+  id: string;
+  name: string;
+  checked: boolean;
+  disabled: boolean;
+}
+
+export class CharacterData extends BaseData {
+  img: string;
+}
+
+export class AccountData extends BaseData {
+  link?: CharacterData;
 }
 
 export class Backup {

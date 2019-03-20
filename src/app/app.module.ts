@@ -21,13 +21,15 @@ import { FormsModule } from '@angular/forms';
 import { SelectComponent } from './select/select.component';
 import { CopyComponent } from './copy/copy.component';
 import { BackupComponent } from './backup/backup.component';
+import { ImportComponent } from './import/import.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SelectComponent,
     CopyComponent,
-    BackupComponent
+    BackupComponent,
+    ImportComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +52,8 @@ import { BackupComponent } from './backup/backup.component';
   ],
   entryComponents : [
     SelectComponent,
-    BackupComponent
+    BackupComponent,
+    ImportComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

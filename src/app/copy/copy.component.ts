@@ -11,8 +11,6 @@ import { concatMap, tap } from 'rxjs/operators';
   styleUrls: ['./copy.component.scss']
 })
 export class CopyComponent implements OnInit, Copy {
-  selectAll: boolean;
-
   constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
               private snack: MatSnackBar) { }
 
@@ -29,6 +27,18 @@ export class CopyComponent implements OnInit, Copy {
       this.service.primaryChar = val;
     } else {
       this.service.primaryAcc = val;
+    }
+  }
+
+  public get selectAll() {
+    return this.type === CopyType.CH ? this.service.selectAllChar : this.service.selectAllAcc;
+  }
+
+  public set selectAll(val: boolean) {
+    if (this.type === CopyType.CH) {
+      this.service.selectAllChar = val;
+    } else {
+      this.service.selectAllAcc = val;
     }
   }
 
@@ -73,6 +83,7 @@ export class CopyComponent implements OnInit, Copy {
     this.service.accData = [];
     this.service.charData = [];
     this.getSettings();
+    this.getSettingsV2();
   }
 
   getSettings = (def: boolean = false) => {
@@ -86,6 +97,20 @@ export class CopyComponent implements OnInit, Copy {
           (val.type === 0 ? this.service.charData : this.service.accData).push(val);
         });
         this.primary = '';
+        this.service.importChars().subscribe((val) => console.log(val));
+      });
+    });
+  }
+
+  getSettingsV2 = (def: boolean = false) => {
+    const setObs = def ? this.service.navigateDefault().pipe(
+      concatMap(this.service.getAllDataV2),
+    ) : this.service.getAllDataV2();
+
+    setObs.subscribe(([chars, accs]) => {
+      this.zone.run(() => {
+        this.service.charDataV2 = chars;
+        this.service.accDataV2 = accs;
       });
     });
   }
@@ -106,12 +131,12 @@ export class CopyComponent implements OnInit, Copy {
   }
 
   toggle = () => {
+    this.selectAll = !this.selectAll;
     this.data.forEach(val => {
       if (!val.disabled) {
-        val.checked = !val.checked;
+        val.checked = this.selectAll;
       }
     });
-    this.selectAll = !this.selectAll;
   }
 
   run = () => {

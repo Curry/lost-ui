@@ -80,7 +80,18 @@ ipcMain.on('getBackupInfo', (event, arg) => {
       win.webContents.send('getBackupInfoResponse', Object.keys(zip.files));
     });
   });
-})
+});
+
+ipcMain.on('importChars', (event, arg) => {
+  uniqueFiles = [];
+  fs.readdir(path.join(baseDir, driveDir), (err, data) => {
+    data.filter((val) => /(settings)/.test(val)).forEach((val) => {
+      files = fs.readdirSync(path.join(baseDir, driveDir, val)).filter((val) => /(core)_([a-z]{4})_([0-9]+)/.test(val));
+      uniqueFiles.push(...files);
+    });
+    win.webContents.send('importCharsResponse', uniqueFiles);
+  });
+});
 
 ipcMain.on('restoreBackup', (event, arg) => {
   fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
