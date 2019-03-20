@@ -14,28 +14,28 @@ export class IpcService {
     this.ipc = (window as any).require('electron').ipcRenderer;
   }
 
-  public resetDir = (): Observable<void> => this.generateObservable('resetDir');
+  public copyData = (type: TypeValue, main: string, vals: string[]): Observable<void> =>
+    this.generateObservable('copyData', [type, main, ...vals])
 
-  public setDrive = (dir: string): Observable<void> => this.generateObservable('setDrive', dir);
+  public getDrives = (): Observable<void> => this.generateObservable('resetToBaseDir');
 
-  public setConf = (dir: string): Observable<string> => this.generateObservable('setConf', dir);
+  public selectDrive = (dir: string): Observable<void> => this.generateObservable('selectDrive', dir);
 
-  public copySettings = (type: TypeValue, main: string, vals: string[]): Observable<void> =>
-    this.generateObservable('copy', [type, main, ...vals])
+  public selectProfile = (dir: string): Observable<string> => this.generateObservable('selectProfile', dir);
 
-  public importAll = (vals: RawData[]): Observable<void> => this.generateObservable('importAll', vals);
+  public getBackups = (): Observable<string[]> => this.generateObservable('getBackups');
 
-  public getFiles = (): Observable<string[]> => this.generateObservable('getFiles');
-
-  public getDataFiles = (): Observable<FileData[]> => this.generateObservable('getDataFiles');
+  public getBackupInfo = (file: string): Observable<FileData[]> => this.generateObservable('getBackupInfo', file);
 
   public restoreBackup = (file: string): Observable<void> => this.generateObservable('restoreBackup', file);
 
   public getImports = (): Observable<FileData[]> => this.generateObservable('getImports');
 
-  public getBackups = (): Observable<string[]> => this.generateObservable('getBackups');
+  public importData = (vals: RawData[]): Observable<void> => this.generateObservable('importData', vals);
 
-  public getBackupInfo = (file: string): Observable<FileData[]> => this.generateObservable('getBackupInfo', file);
+  public getFiles = (): Observable<string[]> => this.generateObservable('getFiles');
+
+  public getDataFiles = (): Observable<FileData[]> => this.generateObservable('getDataFiles');
 
   private generateObservable = <T, S>(command: string, args?: T) =>
     new Observable((observer: Observer<S>) => {

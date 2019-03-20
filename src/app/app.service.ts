@@ -26,20 +26,20 @@ export class AppService {
     this.type = 'char';
   }
 
-  public getAllData = (def: boolean = false) =>
+  public updateData = (def: boolean = false) =>
     (def ? this.navigateDefault() : of(this.path)).pipe(
       tap(path => (this.path = path)),
       concatMap(() => this.getData())
     )
 
-  public copySettings = (main: string, vals: string[]): Observable<void> =>
-    this.ipc.copySettings(this.type, main, vals)
+  public copyData = (main: string, vals: string[]): Observable<void> =>
+    this.ipc.copyData(this.type, main, vals)
 
-  public resetDir = () => this.ipc.resetDir().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)));
+  public getDrives = () => this.ipc.getDrives().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)));
 
-  public setConf = (dir: string) => this.ipc.setConf(dir);
+  public selectDrive = (dir: string) => this.ipc.selectDrive(dir).pipe(concatMap(() => this.getFiles(/(settings)/)));
 
-  public setDrive = (dir: string) => this.ipc.setDrive(dir).pipe(concatMap(() => this.getFiles(/(settings)/)));
+  public selectProfile = (dir: string) => this.ipc.selectProfile(dir);
 
   public getBackups = (): Observable<Backup[]> =>
     this.ipc.getBackups().pipe(
@@ -54,7 +54,7 @@ export class AppService {
 
   public getImports = () => this.ipc.getImports().pipe(concatMap(this.getData));
 
-  public importAll = (files: RawData[]) => this.ipc.importAll(files);
+  public importData = (files: RawData[]) => this.ipc.importData(files);
 
   private getData = (files?: FileData[]): Observable<Data[]> =>
     (files ? of(files) : this.ipc.getDataFiles()).pipe(
@@ -63,13 +63,13 @@ export class AppService {
     )
 
   private navigateDefault = () =>
-    this.ipc.resetDir().pipe(
+    this.ipc.getDrives().pipe(
       concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq)/)),
       map(files => files[0]),
-      concatMap(this.ipc.setDrive),
+      concatMap(this.ipc.selectDrive),
       concatMap(() => this.getFiles(/(settings)/)),
       map(files => files[0]),
-      concatMap(this.ipc.setConf)
+      concatMap(this.ipc.selectProfile)
     )
 
   private charInfo = (charData: FileData): Observable<Data> => {

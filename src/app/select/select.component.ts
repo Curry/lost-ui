@@ -20,14 +20,14 @@ export class SelectComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.resetDir().subscribe((val) => {
+    this.service.getDrives().subscribe((val) => {
         this.allDrives = val;
         this.selectedDrive = '';
       });
   }
 
   setConfig = () => {
-    this.service.setConf(this.selectedConfiguration).subscribe((path) => {
+    this.service.selectProfile(this.selectedConfiguration).subscribe((path) => {
       this.zone.run(() => {
         this.service.path = path;
         this.router.navigate(['']);
@@ -37,7 +37,7 @@ export class SelectComponent implements OnInit {
   }
 
   getConfig = (drive: string) => {
-    this.service.setDrive(drive).subscribe((val) => {
+    this.service.selectDrive(drive).subscribe((val) => {
         this.allConfigurations = val;
         this.selectedConfiguration = '';
       });

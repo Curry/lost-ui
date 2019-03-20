@@ -3,7 +3,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { AppService } from '../app.service';
-import { concatMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-copy',
@@ -81,7 +80,7 @@ export class CopyComponent implements OnInit {
 
   refresh = (def: boolean = false) => {
     this.data = [];
-    this.service.getAllData(def).subscribe((data: Data[]) => {
+    this.service.updateData(def).subscribe((data: Data[]) => {
       this.zone.run(() => {
         this.data = data;
         this.primary = '';
@@ -92,7 +91,7 @@ export class CopyComponent implements OnInit {
   }
 
   copySettings = () => {
-    this.service.copySettings(
+    this.service.copyData(
       this.data.find(val => val.name === this.primary).id,
       this.data.filter(val => val.checked).map(char => char.id)
     )

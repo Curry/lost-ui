@@ -24,30 +24,27 @@ if (process.platform === 'darwin') {
 }
 let dir = baseDir;
 
-ipcMain.on('resetDir', (event, arg) => {
-  dir = baseDir;
-  win.webContents.send('resetDirResponse');
-});
-
-ipcMain.on('setDrive', (event, arg) => {
-  driveDir = arg;
-  dir = path.join(baseDir, driveDir);
-  win.webContents.send('setDriveResponse');
-});
-
-ipcMain.on('setConf', (event, arg) => {
-  confDir = arg;
-  dir = path.join(baseDir, driveDir, confDir);
-  win.webContents.send('setConfResponse', `${driveDir}/${confDir}`);
-});
-
 ipcMain.on('getFiles', (event, arg) => {
   fs.readdir(dir, (err, data) => {
     win.webContents.send('getFilesResponse', data);
   });
 });
 
-ipcMain.on('copy', (event, arg) => {
+ipcMain.on('getDataFiles', (event, arg) => {
+  fs.readdir(path.join(baseDir, driveDir, confDir), (err, data) => {
+    const files = (data ? data : [])
+    .filter(file => /(core)_([a-z]{4})_([0-9]+)(\.dat)/.test(file))
+    .map(file => ({
+      profileName: confDir,
+      fileName: file,
+      id: /[0-9]+/.exec(file)[0],
+      type: /(char)/.test(file) ? 0 : 1
+    }));
+    win.webContents.send('getDataFilesResponse', files);
+  });
+});
+
+ipcMain.on('copyData', (event, arg) => {
   const pre = `core_${arg[0]}_`;
   const main = arg[1];
   const list = arg.slice(2, arg.length);
@@ -64,8 +61,25 @@ ipcMain.on('copy', (event, arg) => {
       list.forEach(function (str) {
         fs.copyFileSync(path.join(dir, `${pre}${main}.dat`), path.join(dir, `${pre}${str}.dat`));
       });
-      win.webContents.send('copyResponse');
+      win.webContents.send('copyDataResponse');
     });
+});
+
+ipcMain.on('resetToBaseDir', (event, arg) => {
+  dir = baseDir;
+  win.webContents.send('resetToBaseDirResponse');
+});
+
+ipcMain.on('selectDrive', (event, arg) => {
+  driveDir = arg;
+  dir = path.join(baseDir, driveDir);
+  win.webContents.send('selectDriveResponse');
+});
+
+ipcMain.on('selectProfile', (event, arg) => {
+  confDir = arg;
+  dir = path.join(baseDir, driveDir, confDir);
+  win.webContents.send('selectProfileResponse', `${driveDir}/${confDir}`);
 });
 
 ipcMain.on('getBackups', (event, arg) => {
@@ -88,26 +102,20 @@ ipcMain.on('getBackupInfo', (event, arg) => {
   });
 });
 
-ipcMain.on('importAll', (event, arg) => {
-  arg.forEach((val) => {
-    fs.copyFileSync(path.join(baseDir, driveDir, val.profileName, val.fileName), path.join(baseDir, driveDir, confDir, val.fileName))
+ipcMain.on('restoreBackup', (event, arg) => {
+  fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
+    JSZip.loadAsync(data).then((zip) => {
+      Object.keys(zip.files).forEach((file) => {
+        zip.file(file).async("nodebuffer").then((val) => {
+          const stream = fs.createWriteStream(path.join(dir, file));
+          stream.write(val);
+          stream.end();
+        });
+      });
+      win.webContents.send('restoreBackupResponse', data);
+    });
   });
-  win.webContents.send('importAllResponse');
 });
-
-ipcMain.on('getDataFiles', (event, arg) => {
-  fs.readdir(path.join(baseDir, driveDir, confDir), (err, data) => {
-    const files = (data ? data : [])
-    .filter(file => /(core)_([a-z]{4})_([0-9]+)(\.dat)/.test(file))
-    .map(file => ({
-      profileName: confDir,
-      fileName: file,
-      id: /[0-9]+/.exec(file)[0],
-      type: /(char)/.test(file) ? 0 : 1
-    }));
-    win.webContents.send('getDataFilesResponse', files);
-  });
-})
 
 ipcMain.on('getImports', (event, arg) => {
   allFileData = [];
@@ -126,19 +134,11 @@ ipcMain.on('getImports', (event, arg) => {
   });
 });
 
-ipcMain.on('restoreBackup', (event, arg) => {
-  fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
-    JSZip.loadAsync(data).then((zip) => {
-      Object.keys(zip.files).forEach((file) => {
-        zip.file(file).async("nodebuffer").then((val) => {
-          const stream = fs.createWriteStream(path.join(dir, file));
-          stream.write(val);
-          stream.end();
-        });
-      });
-      win.webContents.send('restoreBackupResponse', data);
-    });
+ipcMain.on('importData', (event, arg) => {
+  arg.forEach((val) => {
+    fs.copyFileSync(path.join(baseDir, driveDir, val.profileName, val.fileName), path.join(baseDir, driveDir, confDir, val.fileName))
   });
+  win.webContents.send('importDataResponse');
 });
 
 const encodeDate = (date) => {

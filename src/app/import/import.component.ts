@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AppService } from './../app.service';
 import { Component, OnInit, NgZone } from '@angular/core';
-import { delay } from 'rxjs/operators';
 
 class SpecialData {
   [id: string]: Data[];
@@ -73,7 +72,7 @@ export class ImportComponent implements OnInit {
       Object.keys(this.selectedAccs).forEach(key => selectedData.push(...this.selectedAccs[key]));
     }
     this.service
-      .importAll(
+      .importData(
         selectedData.map(
           data =>
             ({
