@@ -55,7 +55,7 @@ export class AppService {
   private getData = (files?: FileData[]): Observable<Data[]> =>
     (files ? of(files) : this.ipc.getDataFiles()).pipe(
       concatMap(fileData => forkJoin(this.getInfo(fileData))),
-      map(data => data.sort((a, b) => a.name.localeCompare(b.name)))
+      map(data => data.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'})))
     )
 
   private navigateDefault = () =>

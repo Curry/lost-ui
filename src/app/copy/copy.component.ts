@@ -79,9 +79,7 @@ export class CopyComponent implements OnInit {
         this.primary = '';
       });
     }, () => {}, () => {
-      this.zone.run(() => {
-        // this.selectAll = false;
-      });
+      this.zone.run(() => {});
     });
   }
 
@@ -93,7 +91,6 @@ export class CopyComponent implements OnInit {
     .subscribe(() => {
       this.zone.run(() => {
         this.data.forEach(val => (val.checked = false));
-        // this.selectAll = false;
         this.cdr.detectChanges();
         this.snack.open(`${this.typeName} Settings copied!`, 'Dismiss', {
           duration: 5000
@@ -103,9 +100,10 @@ export class CopyComponent implements OnInit {
   }
 
   toggle = () => {
+    const selected = !this.selectAll;
     this.data.forEach(val => {
       if (!val.disabled) {
-        val.checked = !this.selectAll;
+        val.checked = selected;
       }
     });
   }
