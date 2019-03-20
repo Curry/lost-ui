@@ -1,10 +1,9 @@
 import { ImportComponent } from './import/import.component';
 import { BackupComponent } from './backup/backup.component';
-import { CopyType } from './models/models';
 import { SelectComponent } from './select/select.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AppService } from './app.service';
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -25,7 +24,7 @@ export class AppComponent implements OnInit {
   }
 
   public setType(val: number) {
-    this.service.type = val === 0 ? CopyType.CH : CopyType.AC;
+    this.service.type = val === 0 ? 'char' : 'user';
   }
 
   changeFolder = () => {

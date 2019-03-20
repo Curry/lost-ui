@@ -38,7 +38,7 @@ ipcMain.on('setDrive', (event, arg) => {
 ipcMain.on('setConf', (event, arg) => {
   confDir = arg;
   dir = path.join(baseDir, driveDir, confDir);
-  win.webContents.send('setConfResponse');
+  win.webContents.send('setConfResponse', `${driveDir}/${confDir}`);
 });
 
 ipcMain.on('getFiles', (event, arg) => {
@@ -47,7 +47,7 @@ ipcMain.on('getFiles', (event, arg) => {
   });
 });
 
-ipcMain.on('copySettings', (event, arg) => {
+ipcMain.on('copy', (event, arg) => {
   const pre = `core_${arg[0]}_`;
   const main = arg[1];
   const list = arg.slice(2, arg.length);

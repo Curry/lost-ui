@@ -1,4 +1,4 @@
-import { Data, CopyType, Copy } from './../models/models';
+import { Data } from './../models/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
@@ -10,12 +10,12 @@ import { concatMap, tap } from 'rxjs/operators';
   templateUrl: './copy.component.html',
   styleUrls: ['./copy.component.scss']
 })
-export class CopyComponent implements OnInit, Copy {
+export class CopyComponent implements OnInit {
   constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
               private snack: MatSnackBar) { }
 
   public get data() {
-    return this.service.data.filter((val) => val.type === (this.type === CopyType.CH ? 0 : 1));
+    return this.service.data.filter((val) => val.type === (this.type === 'char' ? 0 : 1));
   }
 
   public set data(val: Data[]) {
@@ -23,11 +23,11 @@ export class CopyComponent implements OnInit, Copy {
   }
 
   public get primary() {
-    return this.type === CopyType.CH ? this.service.primaryChar : this.service.primaryAcc;
+    return this.type === 'char' ? this.service.primaryChar : this.service.primaryAcc;
   }
 
   public set primary(val: string) {
-    if (this.type === CopyType.CH) {
+    if (this.type === 'char') {
       this.service.primaryChar = val;
     } else {
       this.service.primaryAcc = val;
@@ -35,11 +35,11 @@ export class CopyComponent implements OnInit, Copy {
   }
 
   public get selectAll() {
-    return this.type === CopyType.CH ? this.service.selectAllChar : this.service.selectAllAcc;
+    return this.type === 'char' ? this.service.selectAllChar : this.service.selectAllAcc;
   }
 
   public set selectAll(val: boolean) {
-    if (this.type === CopyType.CH) {
+    if (this.type === 'char') {
       this.service.selectAllChar = val;
     } else {
       this.service.selectAllAcc = val;
@@ -63,16 +63,12 @@ export class CopyComponent implements OnInit, Copy {
   }
 
   public get typeName() {
-    return this.type === CopyType.CH ? 'Character' : 'Account';
+    return this.type === 'char' ? 'Character' : 'Account';
   }
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      if (params.initial) {
-        this.getSettings(true);
-      } else {
-        this.refresh();
-      }
+      this.refresh(params.initial);
     });
   }
 
@@ -83,17 +79,9 @@ export class CopyComponent implements OnInit, Copy {
       .forEach((val) => val.disabled = false);
   }
 
-  refresh = () => {
+  refresh = (def: boolean = false) => {
     this.data = [];
-    this.getSettings();
-  }
-
-  getSettings = (def: boolean = false) => {
-    const setObs = def ? this.service.navigateDefault().pipe(
-      concatMap(() => this.service.getAllData())
-    ) : this.service.getAllData();
-
-    setObs.subscribe((data: Data[]) => {
+    this.service.getAllData(def).subscribe((data: Data[]) => {
       this.zone.run(() => {
         this.data = data;
         this.primary = '';
@@ -106,9 +94,10 @@ export class CopyComponent implements OnInit, Copy {
       this.data.find(val => val.name === this.primary).id,
       this.data.filter(val => val.checked).map(char => char.id)
     )
-    .pipe(tap(this.run))
     .subscribe(() => {
       this.zone.run(() => {
+        this.data.forEach(val => (val.checked = false));
+        this.cdr.detectChanges();
         this.snack.open(`${this.typeName} Settings copied!`, 'Dismiss', {
           duration: 5000
         });
@@ -122,13 +111,6 @@ export class CopyComponent implements OnInit, Copy {
       if (!val.disabled) {
         val.checked = this.selectAll;
       }
-    });
-  }
-
-  run = () => {
-    this.zone.run(() => {
-      this.data.forEach(val => (val.checked = false));
-      this.cdr.detectChanges();
     });
   }
 

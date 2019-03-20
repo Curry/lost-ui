@@ -10,6 +10,7 @@ export class Character {
   race_id: number;
   security_status: number;
 }
+// tslint:enable variable-name
 
 export class Base {
   type: number;
@@ -29,17 +30,4 @@ export class Backup {
   date: Date;
 }
 
-export interface Copy {
-  disable: (value: string) => void;
-  refresh: () => void;
-  getSettings: (refresh: boolean, def: boolean) => void;
-  copySettings: () => void;
-  toggle: () => void;
-  run: () => void;
-}
-
-
-export enum CopyType {
-  CH = 'char',
-  AC = 'user'
-}
+export type TypeValue = 'char' | 'user';

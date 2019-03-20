@@ -1,9 +1,9 @@
+import { IpcService } from './ipc.service';
 import { Injectable } from '@angular/core';
-import { Character, CopyType, Data, Backup, Base } from './models/models';
+import { Character, TypeValue, Data, Backup, Base } from './models/models';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Observer, forkJoin, of } from 'rxjs';
-import { map, concatMap, tap, switchMap, exhaustMap, mergeMap } from 'rxjs/operators';
-import { IpcRenderer } from 'electron';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, concatMap, mergeMap, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -11,9 +11,8 @@ import { IpcRenderer } from 'electron';
 export class AppService {
   private baseUrl = 'https://esi.evetech.net/latest';
   private imageServer = 'https://imageserver.eveonline.com/Character/';
-  private ipc: IpcRenderer;
   public path: string;
-  public type: CopyType;
+  public type: TypeValue;
   public selectAllChar: boolean;
   public selectAllAcc: boolean;
   public data: Data[];
@@ -21,199 +20,107 @@ export class AppService {
   public primaryChar: string;
   public primaryAcc: string;
 
-  constructor(public http: HttpClient) {
-    this.ipc = (window as any).require('electron').ipcRenderer;
+  constructor(private http: HttpClient, private ipc: IpcService) {
     this.data = [];
     this.selectAllChar = false;
     this.selectAllAcc = false;
-    this.type = CopyType.CH;
+    this.type = 'char';
   }
 
-  public getAllData = (files: string[] = undefined): Observable<Data[]> => {
-    const cReg = /(core_char_)([0-9]+)/;
-    const aReg = /(core_user_)([0-9]+)/;
-    let charObs: Observable<string[]>;
-    let accObs: Observable<string[]>;
-    if (files) {
-      charObs = of(files.filter(file => cReg.test(file)));
-      accObs = of(files.filter(file => aReg.test(file)));
-    } else {
-      charObs = this.getFiles(cReg);
-      accObs = this.getFiles(aReg);
-    }
+  public getAllData = (def: boolean = false) => (def ? this.navigateDefault() : of(this.path)).pipe(concatMap(this.getData));
 
-    return forkJoin(charObs, accObs).pipe(
-      map(this.getIds),
-      exhaustMap(this.getInfo),
-      map(([a, b]) => [...a, ...b]),
-      map(chars => chars.sort((a, b) => a.name.localeCompare(b.name)))
-    );
-  }
+  public getImports = () => this.ipc.getImports().pipe(mergeMap(this.getData));
 
-  public navigateDefault = () =>
-    this.resetDir()
-      .pipe(
-        switchMap(() => this.getFiles(/([a-z]{1})(.*)(tq)/)),
-        map(files => files[0]),
-        tap((file) => {
-          this.path = file;
-        }),
-        concatMap(this.setDrive),
-        switchMap(() => this.getFiles(/(settings)/)),
-        map(files => files[0]),
-        tap((file) => {
-          this.path += `/${file}`;
-        }),
-        switchMap(this.setConf)
-      )
-
-  public resetDir = (): Observable<void> => {
-    return new Observable(observer => {
-      this.ipc.once('resetDirResponse', (event, arg) => {
-        observer.next();
-        observer.complete();
-      });
-      this.ipc.send('resetDir');
-    });
-  }
-
-  public setDrive = (dir: string): Observable<void> =>
-    new Observable(observer => {
-      this.ipc.once('setDriveResponse', (event, arg) => {
-        observer.next();
-        observer.complete();
-      });
-      this.ipc.send('setDrive', dir);
-    })
-
-  public setConf = (dir: string): Observable<void> =>
-    new Observable(observer => {
-      this.ipc.once('setConfResponse', (event, arg) => {
-        observer.next();
-        observer.complete();
-      });
-      this.ipc.send('setConf', dir);
-    })
-
-  public copySettings = (main: string, vals: string[]): Observable<void> => {
-    return new Observable(observer => {
-      this.ipc.once('copyResponse', (event, arg) => {
-        observer.next();
-        observer.complete();
-      });
-      this.ipc.send('copySettings', [this.type === CopyType.CH ? 'char' : 'user', main, ...vals]);
-    });
-  }
-
-  public importAll = (vals: Base[]): Observable<void> => {
-    return new Observable(observer => {
-      this.ipc.once('importAllResponse', (event, arg) => {
-        observer.next();
-        observer.complete();
-      });
-      this.ipc.send('importAll', vals);
-    });
-  }
-
-  public getFiles = (regex: RegExp): Observable<string[]> => {
-    return new Observable((observer: Observer<string[]>) => {
-      this.ipc.once('getFilesResponse', (event, arg) => {
-        observer.next(arg);
-        observer.complete();
-      });
-      this.ipc.send('getFiles');
-    }).pipe(map(files => files.filter(file => regex.test(file))));
-  }
-
-  public createProfile = (profile: string): Observable<void> => {
-    return new Observable(observer => {
-      this.ipc.once('createProfileResponse', (event, arg) => {
-        observer.next();
-        observer.complete();
-      });
-      this.ipc.send('createProfile');
-    });
-  }
-
-  public restoreBackup = (file: string) => {
-    return new Observable((observer: Observer<void>) => {
-      this.ipc.once('restoreBackupResponse', (event, arg) => {
-        observer.next(arg);
-        observer.complete();
-      });
-      this.ipc.send('restoreBackup', file);
-    });
-  }
-
-  public getImports = () => {
-    return new Observable((observer: Observer<string[]>) => {
-      this.ipc.once('getImportsResponse', (event, arg) => {
-        observer.next(arg);
-        observer.complete();
-      });
-      this.ipc.send('getImports');
-    }).pipe(mergeMap(this.getAllData));
-  }
-
-  public getBackups = (): Observable<Backup[]> => {
-    return new Observable((observer: Observer<string[]>) => {
-      this.ipc.once('getBackupsResponse', (event, arg) => {
-        observer.next(arg);
-        observer.complete();
-      });
-      this.ipc.send('getBackups');
-    }).pipe(
+  public getBackups = (): Observable<Backup[]> =>
+    this.ipc.getBackups().pipe(
       map(vals => vals.filter(val => /([a-z]{4})_([0-9]{8})-([0-9]{6}).zip/.test(val))),
       map(vals => vals.map(this.parseString))
-    );
-  }
+    )
 
-  public getBackupInfo = (file: string): Observable<Data[]> => {
-    return new Observable((observer: Observer<string[]>) => {
-      this.ipc.once('getBackupInfoResponse', (event, arg) => {
-        observer.next(arg);
-        observer.complete();
-      });
-      this.ipc.send('getBackupInfo', file);
-    }).pipe(
+  public getBackupInfo = (file: string): Observable<Data[]> =>
+    this.ipc.getBackupInfo(file).pipe(
       map(this.getIdsFromFile),
       map(this.getDataFromId)
-    );
-  }
+    )
+
+  public resetDir = () =>
+    this.ipc.resetDir().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)))
+
+  public setConf = (dir: string) => this.ipc.setConf(dir);
+
+  public setDrive = (dir: string) => this.ipc.setDrive(dir).pipe(concatMap(() => this.getFiles(/(settings)/)));
+
+  public importAll = (files: Base[]) => this.ipc.importAll(files);
+
+  public copySettings = (main: string, vals: string[]): Observable<void> => this.ipc.copySettings(this.type, main, vals);
+
+  public restoreBackup = (zFile: string) => this.ipc.restoreBackup(zFile);
+
+  private getData = (): Observable<Data[]> =>
+    forkJoin(
+      this.getFiles(/(core_char_)([0-9]+)/),
+      this.getFiles(/(core_user_)([0-9]+)/)
+    ).pipe(
+      map(this.getIds),
+      concatMap(this.getInfo),
+      map(([a, b]) => [...a, ...b]),
+      map(chars => chars.sort((a, b) => a.name.localeCompare(b.name)))
+    )
+
+  private navigateDefault = () =>
+    this.ipc.resetDir().pipe(
+      concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq)/)),
+      map(files => files[0]),
+      concatMap(this.ipc.setDrive),
+      concatMap(() => this.getFiles(/(settings)/)),
+      map(files => files[0]),
+      concatMap(this.ipc.setConf)
+    )
 
   private getAccInfo = (accs: string[]): Observable<Data[]> =>
-    of(accs.map(
-      acc =>
-        ({
-          id: acc,
-          name: acc,
-          disabled: true,
-          checked: false,
-          type: 1
-        } as Data)
-    ))
-
-  private getCharInfo = (pids: string[]): Observable<Data[]> =>
-    forkJoin(pids.map((pid) => this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`).pipe(
-      map(
-        char =>
+    of(
+      accs.map(
+        acc =>
           ({
-            id: pid,
-            name: char ? char.name : undefined,
-            img: `${this.imageServer}${pid}_128.jpg`,
+            id: acc,
+            name: acc,
             disabled: true,
             checked: false,
-            type: 0
+            type: 1
           } as Data)
-      ))))
+      )
+    )
+
+  private getCharInfo = (pids: string[]): Observable<Data[]> =>
+    forkJoin(
+      pids.map(pid =>
+        this.http.get<Character>(`${this.baseUrl}/characters/${pid}/`).pipe(
+          map(
+            char =>
+              ({
+                id: pid,
+                name: char ? char.name : undefined,
+                img: `${this.imageServer}${pid}_128.jpg`,
+                disabled: true,
+                checked: false,
+                type: 0
+              } as Data)
+          )
+        )
+      )
+    )
+
+
+  private getFiles = (regex: RegExp): Observable<string[]> =>
+    this.ipc.getFiles().pipe(map(files => files.filter(file => regex.test(file))))
 
   private getIds = ([a, b]: [string[], string[]]) => [this.getIdsFromFile(a), this.getIdsFromFile(b)];
 
-  private getIdsFromFile = (files: string[]) => files.map(val => val.split('_')[2].split('.')[0]);
+  private getIdsFromFile = (files: string[]) => files.map(val => /[0-9]+/.exec(val)[0]);
 
   private getInfo = ([a, b]: [string[], string[]]) => forkJoin(this.getCharInfo(a), this.getAccInfo(b));
 
-  private getDataFromId = (files: string[]) => files.map(file => this.data.find((val) => val.id === file));
+  private getDataFromId = (files: string[]) => files.map(file => this.data.find(val => val.id === file));
 
   private parseString = (fileName: string): Backup => {
     let finalString: string;
