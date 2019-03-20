@@ -1,6 +1,6 @@
 import { IpcService } from './ipc.service';
 import { Injectable } from '@angular/core';
-import { Character, TypeValue, Data, Backup, Base } from './models/models';
+import { Character, TypeValue, Data, Backup, Base, cReg, aReg } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, concatMap, mergeMap, tap } from 'rxjs/operators';
@@ -16,7 +16,6 @@ export class AppService {
   public selectAllChar: boolean;
   public selectAllAcc: boolean;
   public data: Data[];
-  public backups: Backup[];
   public primaryChar: string;
   public primaryAcc: string;
 
@@ -29,7 +28,7 @@ export class AppService {
 
   public getAllData = (def: boolean = false) => (def ? this.navigateDefault() : of(this.path)).pipe(
     tap(path => this.path = path),
-    concatMap(this.getData)
+    concatMap(() => this.getData())
   )
 
   public getImports = () => this.ipc.getImports().pipe(mergeMap(this.getData));
@@ -59,10 +58,10 @@ export class AppService {
 
   public restoreBackup = (zFile: string) => this.ipc.restoreBackup(zFile);
 
-  private getData = (): Observable<Data[]> =>
+  private getData = (files: string[] = undefined): Observable<Data[]> =>
     forkJoin(
-      this.getFiles(/(core_char_)([0-9]+)/),
-      this.getFiles(/(core_user_)([0-9]+)/)
+      files ? [of(files.filter(file => cReg.test(file))), of(files.filter(file => aReg.test(file)))]
+      : [this.getFiles(/(core_char_)([0-9]+)/), this.getFiles(/(core_user_)([0-9]+)/)]
     ).pipe(
       map(this.getIds),
       concatMap(this.getInfo),

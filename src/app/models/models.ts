@@ -31,3 +31,6 @@ export class Backup {
 }
 
 export type TypeValue = 'char' | 'user';
+
+export const cReg = /(char)/;
+export const aReg = /(user)/;
