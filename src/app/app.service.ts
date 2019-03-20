@@ -62,10 +62,9 @@ export class AppService {
     this.ipc.getDrives().pipe(
       concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq)/)),
       map(files => files[0]),
-      concatMap(this.ipc.selectDrive),
-      concatMap(() => this.getFiles(/(settings)/)),
+      concatMap(this.selectDrive),
       map(files => files[0]),
-      concatMap(this.ipc.selectProfile)
+      concatMap(this.selectProfile)
     )
 
   private charInfo = (charData: FileData): Observable<Data> => {
