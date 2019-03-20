@@ -35,7 +35,7 @@ export class ImportComponent implements OnInit {
 
   public getAccs = (profileName: string) =>
     (this.specData[profileName] ? this.specData[profileName] : []).filter(val => val.type === 1)
-;
+
   public hasChars = (profileName: string) => this.getChars(profileName).length > 0;
 
   public hasAccs = (profileName: string) => this.getAccs(profileName).length > 0;
@@ -56,6 +56,9 @@ export class ImportComponent implements OnInit {
           .forEach(val =>
             this.specData[val.profileName] ? this.specData[val.profileName].push(val) : (this.specData[val.profileName] = [val])
           );
+      });
+    }, () => {}, () => {
+      this.zone.run(() => {
         this.ready = true;
       });
     });

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Character, TypeValue, Data, Backup, FileData, RawData } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
-import { map, concatMap, tap } from 'rxjs/operators';
+import { map, concatMap, tap, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -78,7 +78,13 @@ export class AppService {
       ? of(existingChar)
       : this.http
         .get<Character>(`${this.baseUrl}/characters/${charData.id}/`)
-        .pipe(map(char => new Data(charData, char.name, `${this.imageServer}${charData.id}_128.jpg`)));
+        .pipe(
+          catchError(() => of({
+            id: charData.id,
+            name: charData.id
+          })),
+          map(char => new Data(charData, char.name, (charData.id === char.name ? '' : `${this.imageServer}${charData.id}_128.jpg`)))
+        );
   }
 
   private accInfo = (accData: FileData): Observable<Data> => {
