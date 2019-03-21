@@ -10,6 +10,7 @@ let win;
 const args = process.argv.slice(1);
 serve = args.some(val => val === 'local');
 
+
 let baseDir;
 let driveDir;
 let confDir;
@@ -23,6 +24,7 @@ if (process.platform === 'darwin') {
   baseDir = path.join(home, 'AppData', 'Local', 'CCP', 'EVE');
 }
 let dir = baseDir;
+const confFile = path.join(baseDir, 'evep.conf');
 
 ipcMain.on('getFiles', (event, arg) => {
   fs.readdir(dir, (err, data) => {
@@ -139,6 +141,56 @@ ipcMain.on('importData', (event, arg) => {
     fs.copyFileSync(path.join(baseDir, driveDir, val.profileName, val.fileName), path.join(baseDir, driveDir, confDir, val.fileName))
   });
   win.webContents.send('importDataResponse');
+});
+
+ipcMain.on('getLatestAccount', (event, arg) => {
+  fs.readdir(dir, (err, files) => {
+    const accFiles = files.filter(file => /(user)/.test(file));
+    let lastModifiedFile;
+    accFiles.forEach(file => {
+      const fileLastModified = fs.statSync(path.join(dir, file)).mtime;
+      if (!lastModifiedFile) {
+        lastModifiedFile = {
+          date: fileLastModified,
+          account: /[0-9]+/.exec(file)[0]
+        };
+      } else if (fileLastModified > lastModifiedFile.date) {
+        lastModifiedFile = {
+          date: fileLastModified,
+          account: /[0-9]+/.exec(file)[0]
+        };
+      }
+    });
+    win.webContents.send('getLatestAccountResponse', lastModifiedFile.account);
+  });
+});
+
+ipcMain.on('setLinkedAccount', (event, arg) => {
+  if (!fs.existsSync(confFile)) {
+    fs.writeFileSync(confFile, JSON.stringify([], null, 2));
+  }
+  var data = JSON.parse(fs.readFileSync(confFile));
+  if(!data.find(val => val.accId === arg[0])) {
+    data.push({
+      accId: arg[0],
+      charIds: arg.slice(1)
+    })
+  } else {
+    data.find(val => val.accId === arg[0]).charIds = arg.slice(1);
+  }
+  fs.writeFileSync(confFile, JSON.stringify(data, null, 2));
+  win.webContents.send('setLinkedAccountResponse');
+});
+
+ipcMain.on('getLinkedAccounts', (event, arg) => {
+  let result;
+  if (!fs.existsSync(confFile)) {
+    result = [];
+    fs.writeFileSync(confFile, JSON.stringify([], null, 2));
+  } else {
+    result = JSON.parse(fs.readFileSync(confFile));
+  }
+  win.webContents.send('getLinkedAccountsResponse', result);
 });
 
 const encodeDate = (date) => {

@@ -1,3 +1,4 @@
+import { LinkComponent } from './link/link.component';
 import { ImportComponent } from './import/import.component';
 import { BackupComponent } from './backup/backup.component';
 import { SelectComponent } from './select/select.component';
@@ -27,7 +28,7 @@ export class AppComponent implements OnInit {
     this.service.type = val === 0 ? 'char' : 'user';
   }
 
-  changeFolder = () => {
+  openChange = () => {
     this.dialog.open(SelectComponent, { disableClose: true });
   }
 
@@ -38,7 +39,11 @@ export class AppComponent implements OnInit {
     });
   }
 
-  import = () => {
+  openImport = () => {
     this.dialog.open(ImportComponent);
+  }
+
+  openLink = () => {
+    this.dialog.open(LinkComponent);
   }
 }

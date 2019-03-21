@@ -20,9 +20,10 @@ div.prompt{
 .mat-card {
   margin: 15px;
   width: 275px;
-  height: 150px;
-  .mat-card-header{
-    height: 100px;
+  height: 175px;
+  .mat-card-content {
+    height: 80px;
+    text-align: center;
   }
   .mat-card-avatar {
     height: 100px;

@@ -83,6 +83,8 @@ export class CopyComponent implements OnInit {
     });
   }
 
+  getDataFromId = (id: string) => this.service.data.filter(val => val.type === 0).find(val => val.id === id).name;
+
   copySettings = () => {
     this.service.copyData(
       this.data.find(val => val.name === this.primary).id,

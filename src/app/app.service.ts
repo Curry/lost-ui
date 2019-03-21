@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Character, TypeValue, Data, Backup, FileData, RawData } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
-import { map, concatMap, tap, catchError } from 'rxjs/operators';
+import { map, concatMap, tap, catchError, mergeMap, exhaustMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -52,11 +52,25 @@ export class AppService {
 
   public importData = (files: RawData[]) => this.ipc.importData(files);
 
+  public getLatestAccount = () => this.ipc.getLatestAccount();
+
+  public setLinkedAccount = (acc: string, chars: string[]) => this.ipc.setLinkedAccount(acc, chars);
+
   private getData = (files?: FileData[]): Observable<Data[]> =>
     (files ? of(files) : this.ipc.getDataFiles()).pipe(
       concatMap(fileData => forkJoin(this.getInfo(fileData))),
-      map(data => data.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'})))
+      map(data => data.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}))),
+      exhaustMap(this.getLinked)
     )
+
+  private getLinked = (data: Data[]) => {
+    return this.ipc.getLinkedAccounts().pipe(
+      map(link => {
+        link.forEach(acc => data.find(val => val.id === acc.accId).linkedChars = acc.charIds);
+        return data;
+      })
+    );
+  }
 
   private navigateDefault = () =>
     this.ipc.getDrives().pipe(

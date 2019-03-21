@@ -11,6 +11,11 @@ export class Character {
   security_status: number;
 }
 // tslint:enable variable-name
+
+export class LinkData {
+  date: Date;
+  fileName: string;
+}
 export class RawData {
   profileName: string;
   fileName: string;
@@ -22,11 +27,11 @@ export class FileData extends RawData {
 export class Data extends FileData {
   name: string;
   img: string;
-  link?: Data;
+  linkedChars?: string[];
   checked: boolean;
   disabled: boolean;
 
-  constructor(fileData: FileData, name?: string, img?: string, link?: Data) {
+  constructor(fileData: FileData, name?: string, img?: string) {
     super();
     this.profileName = fileData.profileName;
     this.fileName = fileData.fileName;
@@ -36,13 +41,17 @@ export class Data extends FileData {
     this.img = img;
     this.checked = false;
     this.disabled = true;
-    this.link = link;
   }
 }
 
 export class Backup {
   file: string;
   date: Date;
+}
+
+export class Select {
+  accId: string;
+  charIds: string[];
 }
 
 export type TypeValue = 'char' | 'user';

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { IpcRenderer } from 'electron';
-import { TypeValue, FileData, RawData } from './models/models';
+import { TypeValue, FileData, RawData, Select } from './models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +36,13 @@ export class IpcService {
   public getFiles = (): Observable<string[]> => this.generateObservable('getFiles');
 
   public getDataFiles = (): Observable<FileData[]> => this.generateObservable('getDataFiles');
+
+  public getLatestAccount = (): Observable<string> => this.generateObservable('getLatestAccount');
+
+  public setLinkedAccount = (acc: string, chars: string[]): Observable<void> =>
+    this.generateObservable('setLinkedAccount', [acc, ...chars])
+
+  public getLinkedAccounts = (): Observable<Select[]> => this.generateObservable('getLinkedAccounts');
 
   private generateObservable = <T, S>(command: string, args?: T) =>
     new Observable((observer: Observer<S>) => {

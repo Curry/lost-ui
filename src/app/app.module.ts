@@ -25,6 +25,7 @@ import { SelectComponent } from './select/select.component';
 import { CopyComponent } from './copy/copy.component';
 import { BackupComponent } from './backup/backup.component';
 import { ImportComponent } from './import/import.component';
+import { LinkComponent } from './link/link.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { ImportComponent } from './import/import.component';
     SelectComponent,
     CopyComponent,
     BackupComponent,
-    ImportComponent
+    ImportComponent,
+    LinkComponent
   ],
   imports: [
     BrowserModule,
@@ -59,7 +61,8 @@ import { ImportComponent } from './import/import.component';
   entryComponents : [
     SelectComponent,
     BackupComponent,
-    ImportComponent
+    ImportComponent,
+    LinkComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
