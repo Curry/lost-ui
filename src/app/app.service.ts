@@ -66,7 +66,12 @@ export class AppService {
   private getLinked = (data: Data[]) => {
     return this.ipc.getLinkedAccounts().pipe(
       map(link => {
-        link.forEach(acc => data.find(val => val.id === acc.accId).linkedChars = acc.charIds);
+        link.forEach(acc => {
+          const linkedAcc = data.find(val => val.id === acc.accId);
+          if (linkedAcc) {
+            linkedAcc.linkedChars = acc.charIds;
+          }
+        });
         return data;
       })
     );

@@ -4,6 +4,6 @@ set -e
 npm run package:osx
 cd packages/EveProfile-darwin-x64/
 zip -r eve-profile-osx64.zip *
-cp eve-profile-win64.zip ../
+mv eve-profile-osx64.zip ../
 cd ../..
 echo "Mac Zip Created"

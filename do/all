@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
+./do/clean
 ./do/build
 ./do/win
 ./do/mac
-
