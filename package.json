@@ -2,22 +2,20 @@
   "name": "eve-profile",
   "displayName": "Eve Profile",
   "version": "1.2.0",
+  "productName": "Eve Profile",
   "author": {
     "email": "curryfurious@gmail.com",
     "name": "Akaash Suresh"
   },
   "main": "main.js",
   "scripts": {
-    "ng": "ng",
-    "start": "concurrently \"ng serve\" \"electron . local\"",
     "build": "ng build -c production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "package:win": "npm run build && cross-var electron-packager . EveProfile --out=packages --platform=win32 --arch=x64 --overwrite --asar",
-    "package:linux": "npm run build && cross-var electron-packager . EveProfile --out=packages --platform=linux --arch=all --overwrite --asar",
-    "package:osx": "npm run build && cross-var electron-packager . EveProfile --out=packages --platform=darwin --arch=all --overwrite --asar",
-    "package:all": "npm run build && cross-var electron-packager . EveProfile --out=packages --all --arch=all --overwrite --asar"
+    "package:win": "electron-packager . EveProfile --out=packages --platform=win32 --arch=x64 --overwrite --asar",
+    "package:linux": "electron-packager . EveProfile --out=packages --platform=linux --arch=x64 --overwrite --asar",
+    "package:osx": "electron-packager . EveProfile --out=packages --platform=darwin --arch=x64 --overwrite --asar"
   },
   "private": true,
   "dependencies": {
@@ -47,8 +45,6 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^10.12.30",
     "codelyzer": "~4.5.0",
-    "concurrently": "^4.1.0",
-    "cross-var": "^1.1.0",
     "electron": "^4.0.8",
     "electron-packager": "^13.1.1",
     "jasmine-core": "~2.99.1",

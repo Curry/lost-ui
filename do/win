@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+npm run package:win
+cd packages/EveProfile-win32-x64/
+zip -r eve-profile-win64.zip *
+cp eve-profile-win64.zip ../
+cd ../..
+echo "Windows Zip Created"
