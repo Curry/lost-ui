@@ -10,7 +10,7 @@
     </mat-form-field>
   </div>
   <div *ngIf="selectedDrive">
-    <h2>Select Configuration Folder</h2>
+    <h2>Select Profile Folder</h2>
     <mat-form-field>
         <mat-select [(ngModel)]="selectedConfiguration" placeholder="">
           <mat-option *ngFor="let conf of allConfigurations" [value]="conf">
@@ -20,6 +20,6 @@
       </mat-form-field>
   </div>
   <div *ngIf="selectedConfiguration">
-    <button mat-flat-button (click)="setConfig()" color="accent">Select Folder</button>
+    <button mat-flat-button (click)="setConfig()" color="accent">Select</button>
   </div>
 </div>
