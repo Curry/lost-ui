@@ -1,6 +1,6 @@
 import { IpcService } from './ipc.service';
 import { Injectable } from '@angular/core';
-import { Character, TypeValue, Data, Backup, FileData, RawData } from './models/models';
+import { Character, TypeValue, Data, Backup, FileData, RawData, Select } from './models/models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, concatMap, tap, catchError, mergeMap, exhaustMap } from 'rxjs/operators';
@@ -16,6 +16,7 @@ export class AppService {
   public data: Data[];
   public primaryChar: string;
   public primaryAcc: string;
+  public linkedAccs: Select[];
 
   constructor(private http: HttpClient, private ipc: IpcService) {
     this.data = [];
@@ -30,6 +31,9 @@ export class AppService {
 
   public copyData = (main: string, vals: string[]): Observable<void> =>
     this.ipc.copyData(this.type, main, vals)
+
+  public copyBoth = (sourceChar: string, sourceAcc: string, destChars: string[], destAccs: string[]): Observable<void> =>
+    this.ipc.copyBoth(sourceChar, sourceAcc, destChars, destAccs)
 
   public getDrives = () => this.ipc.getDrives().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)));
 
@@ -65,6 +69,7 @@ export class AppService {
 
   private getLinked = (data: Data[]) => {
     return this.ipc.getLinkedAccounts().pipe(
+      tap((linkedAccs) => this.linkedAccs = linkedAccs),
       map(link => {
         link.forEach(acc => {
           const linkedAcc = data.find(val => val.id === acc.accId);

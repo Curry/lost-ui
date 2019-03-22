@@ -15,17 +15,23 @@ export class BackupComponent implements OnInit {
   data: Data[];
   type: string;
   selectedBackup: string;
+  ready: boolean;
   constructor(private service: AppService, private router: Router, private zone: NgZone,
               private dialogRef: MatDialogRef<BackupComponent>) {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
 
   ngOnInit() {
+    this.ready = false;
     this.service.getBackups()
       .subscribe((backups) => {
-        this.backups = backups;
+        this.backups = backups.sort((a, b) => a.date > b.date ? 1 : -1);
+      }, () => {}, () => {
+        this.ready = true;
       });
   }
+
+  hasData = () => this.backups.length > 0;
 
   getBackupInfo = (zFile: string) => {
     this.type = zFile.substring(0, 1) === 'c' ? 'character(s)' : 'account(s)';
@@ -35,13 +41,14 @@ export class BackupComponent implements OnInit {
   }
 
   restoreBackup = (zFile: string) => {
+    this.ready = false;
     this.service.restoreBackup(zFile)
-    .pipe(delay(1000))
-    .subscribe(() => {
-      this.zone.run(() => {
-        this.router.navigate(['']);
-        this.dialogRef.close();
+      .pipe(delay(1000))
+      .subscribe(() => {
+        this.zone.run(() => {
+          this.router.navigate(['']);
+          this.dialogRef.close();
+        });
       });
-    });
   }
 }

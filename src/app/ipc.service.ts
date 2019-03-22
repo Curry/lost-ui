@@ -17,6 +17,9 @@ export class IpcService {
   public copyData = (type: TypeValue, main: string, vals: string[]): Observable<void> =>
     this.generateObservable('copyData', [type, main, ...vals])
 
+  public copyBoth = (sourceChar: string, sourceAcc: string, destChars: string[], destAccs: string[]): Observable<void> =>
+    this.generateObservable('copyBoth', [sourceChar, sourceAcc, destChars, destAccs])
+
   public getDrives = (): Observable<void> => this.generateObservable('resetToBaseDir');
 
   public selectDrive = (dir: string): Observable<void> => this.generateObservable('selectDrive', dir);

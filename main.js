@@ -67,6 +67,34 @@ ipcMain.on('copyData', (event, arg) => {
     });
 });
 
+ipcMain.on('copyBoth', (event, arg) => {
+  const sChar = arg[0];
+  const sAcc = arg[1];
+  const cList = arg[2];
+  const aList = arg[3];
+  let zip = new JSZip();
+  cList.forEach(function (str) {
+    zip.file(`core_char_${str}.dat`, fs.readFileSync(path.join(dir, `core_char_${str}.dat`)));
+  });
+  aList.forEach(function (str) {
+    zip.file(`core_user_${str}.dat`, fs.readFileSync(path.join(dir, `core_user_${str}.dat`)));
+  });
+  if (!fs.existsSync(path.join(dir, 'evep'))) {
+    fs.mkdirSync(path.join(dir, 'evep'));
+  }
+  zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+    .pipe(fs.createWriteStream(path.join(dir, 'evep', `alls_${encodeDate(new Date().toISOString())}.zip`)))
+    .on('finish', function () {
+      cList.forEach(function (str) {
+        fs.copyFileSync(path.join(dir, `core_char_${sChar}.dat`), path.join(dir, `core_char_${str}.dat`));
+      });
+      aList.forEach(function (str) {
+        fs.copyFileSync(path.join(dir, `core_user_${sAcc}.dat`), path.join(dir, `core_user_${str}.dat`));
+      });
+      win.webContents.send('copyBothResponse');
+    });
+});
+
 ipcMain.on('resetToBaseDir', (event, arg) => {
   dir = baseDir;
   win.webContents.send('resetToBaseDirResponse');

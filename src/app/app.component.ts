@@ -34,8 +34,6 @@ export class AppComponent implements OnInit {
 
   openBackups = () => {
     this.dialog.open(BackupComponent, {
-      minWidth: '300px',
-      minHeight: '250px'
     });
   }
 

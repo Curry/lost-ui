@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { AppService } from '../app.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-copy',
@@ -10,8 +11,11 @@ import { AppService } from '../app.service';
   styleUrls: ['./copy.component.scss']
 })
 export class CopyComponent implements OnInit {
+  both: boolean;
   constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
-              private snack: MatSnackBar) { }
+              private snack: MatSnackBar) {
+                this.both = false;
+              }
 
   public get data() {
     return this.service.data.filter((val) => val.type === (this.type === 'char' ? 0 : 1));
@@ -89,17 +93,39 @@ export class CopyComponent implements OnInit {
       .filter(x => x)
 
   copySettings = () => {
-    this.service.copyData(
-      this.data.find(val => val.name === this.primary).id,
-      this.data.filter(val => val.checked).map(char => char.id)
-    )
-    .subscribe(() => {
+    let copyObs: Observable<void>;
+    const primaryChar = this.data.find(val => val.name === this.primary).id;
+    const selectedChars = this.data.filter(val => val.checked).map(char => char.id);
+    if (this.both && this.type === 'char') {
+      const primaryAcc = this.service.linkedAccs.find(accs => accs.charIds.find(val => val === primaryChar) != null);
+      let interpolatedAccs =
+        selectedChars.map(char => this.service.linkedAccs.find(accs => accs.charIds.find(val => val === char) != null));
+      if (primaryAcc && interpolatedAccs) {
+        interpolatedAccs = interpolatedAccs.filter(acc => acc.accId !== primaryAcc.accId);
+        if (interpolatedAccs.length > 0) {
+          copyObs = this.service.copyBoth(
+            primaryChar,
+            primaryAcc.accId,
+            selectedChars,
+            interpolatedAccs.map(acc => acc.accId)
+          );
+        } else {
+          copyObs = this.service.copyData(primaryChar, selectedChars);
+        }
+      } else {
+        copyObs = this.service.copyData(primaryChar, selectedChars);
+      }
+    } else {
+      copyObs = this.service.copyData(primaryChar, selectedChars);
+    }
+
+
+    copyObs.subscribe(() => {
       this.zone.run(() => {
         this.data.forEach(val => (val.checked = false));
         this.cdr.detectChanges();
         this.snack.open(`${this.typeName} Settings copied & Backup created!`, 'Dismiss', {
-          duration: 10000,
-          panelClass: 'snack'
+          duration: 10000
         });
       });
     });

@@ -1,26 +1,34 @@
-<div class="select">
-  <div>
-    <h2>Select Backup</h2>
-    <mat-form-field>
-      <mat-select [(ngModel)]="selectedBackup" placeholder="" (selectionChange)="getBackupInfo($event.value)">
-        <mat-option *ngFor="let backup of backups" [value]="backup.file">
-          {{backup.date.toLocaleString()}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-  <div>
-    <button mat-flat-button [disabled]="!selectedBackup" (click)="restoreBackup(selectedBackup)" color="accent">Restore</button>
-  </div>
-  <div *ngIf="data">
-    <h2>Following {{type}} will be restored</h2>
-    <div fxLayout="row wrap">
-      <mat-card *ngFor="let val of data">
-        <mat-card-header>
-          <img matCardAvatar *ngIf="val.img" [src]="val.img">
-          <mat-card-title>{{val.name}}</mat-card-title>
-        </mat-card-header>
-      </mat-card>
+<div class="backup">
+  <mat-spinner *ngIf="!ready"></mat-spinner>
+  <div *ngIf="ready && !hasData()">
+      <h4>Nothing to Restore</h4>
+      <button mat-flat-button mat-dialog-close color="warn">Close</button>
+    </div>
+  <div *ngIf="ready && hasData()">
+    <div>
+      <h2>Select Backup</h2>
+      <mat-form-field>
+        <mat-select [(ngModel)]="selectedBackup" placeholder="" (selectionChange)="getBackupInfo($event.value)">
+          <mat-option *ngFor="let backup of backups" [value]="backup.file">
+            {{backup.date.toLocaleString()}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div>
+      <button mat-flat-button [disabled]="!selectedBackup" (click)="restoreBackup(selectedBackup)"
+        color="accent">Restore</button>
+    </div>
+    <div *ngIf="data">
+      <h2>The Following Will Be Restored</h2>
+      <div fxLayout="row wrap">
+        <mat-card *ngFor="let val of data">
+          <mat-card-header>
+            <img matCardAvatar *ngIf="val.img" [src]="val.img">
+            <mat-card-title>{{val.name}}</mat-card-title>
+          </mat-card-header>
+        </mat-card>
+      </div>
     </div>
   </div>
 </div>
