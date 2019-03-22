@@ -97,8 +97,9 @@ export class CopyComponent implements OnInit {
       this.zone.run(() => {
         this.data.forEach(val => (val.checked = false));
         this.cdr.detectChanges();
-        this.snack.open(`${this.typeName} Settings copied!`, 'Dismiss', {
-          duration: 5000
+        this.snack.open(`${this.typeName} Settings copied & Backup created!`, 'Dismiss', {
+          duration: 10000,
+          panelClass: 'snack'
         });
       });
     });

@@ -114,6 +114,7 @@ ipcMain.on('restoreBackup', (event, arg) => {
           stream.end();
         });
       });
+      fs.unlinkSync(path.join(dir, 'evep', arg));
       win.webContents.send('restoreBackupResponse', data);
     });
   });

@@ -29,6 +29,10 @@ export class ImportComponent implements OnInit {
     this.specData = {};
   }
 
+  public get disabled() {
+    return this.getSelected(false).length === 0;
+  }
+
   public getChars = (profileName: string) =>
     (this.specData[profileName] ? this.specData[profileName] : []).filter(val => val.type === 0)
 
@@ -64,16 +68,9 @@ export class ImportComponent implements OnInit {
   }
 
   import = (all: boolean) => {
-    const selectedData: Data[] = [];
-    if (all) {
-      Object.keys(this.specData).forEach(key => selectedData.push(...this.specData[key]));
-    } else {
-      Object.keys(this.selectedChars).forEach(key => selectedData.push(...this.selectedChars[key]));
-      Object.keys(this.selectedAccs).forEach(key => selectedData.push(...this.selectedAccs[key]));
-    }
     this.service
       .importData(
-        selectedData.map(
+        this.getSelected(all).map(
           data =>
             ({
               profileName: data.profileName,
@@ -87,5 +84,16 @@ export class ImportComponent implements OnInit {
           this.dialogRef.close();
         });
       });
+  }
+
+  private getSelected = (all: boolean) => {
+    const selectedData: Data[] = [];
+    if (all) {
+      Object.keys(this.specData).forEach(key => selectedData.push(...this.specData[key]));
+    } else {
+      Object.keys(this.selectedChars).forEach(key => selectedData.push(...this.selectedChars[key]));
+      Object.keys(this.selectedAccs).forEach(key => selectedData.push(...this.selectedAccs[key]));
+    }
+    return selectedData;
   }
 }

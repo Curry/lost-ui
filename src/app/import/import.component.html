@@ -35,8 +35,8 @@
       </mat-expansion-panel>
     </mat-accordion>
     <div class="import-buttons">
-        <button mat-stroked-button (click)="import(false)" color="primary">Import Selected</button>
-        <button mat-stroked-button (click)="import(true)" color="primary">Import All</button>
+        <button mat-raised-button [disabled]="disabled" (click)="import(false)" color="accent">Import Selected</button>
+        <button mat-raised-button (click)="import(true)" color="accent">Import All</button>
     </div>
   </div>
 </div>
