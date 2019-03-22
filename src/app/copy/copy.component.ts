@@ -17,9 +17,6 @@ export class CopyComponent implements OnInit {
     this.both = false;
   }
 
-  public get link() {
-    return (this.service.linkedAccs ? this.service.linkedAccs : []).length > 0;
-  }
   public get data() {
     return this.service.data.filter((val) => val.type === (this.type === 'char' ? 0 : 1));
   }
@@ -138,4 +135,12 @@ export class CopyComponent implements OnInit {
     });
   }
 
+  link = () => {
+    const primary = this.data.find(val => val.name === this.primary);
+    if (primary) {
+      return this.service.linkedAccs.find(accs => accs.charIds.find(val => val === primary.id) != null) != null;
+    } else {
+      return false;
+    }
+  }
 }
