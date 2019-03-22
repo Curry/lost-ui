@@ -14,9 +14,12 @@ export class CopyComponent implements OnInit {
   both: boolean;
   constructor(private service: AppService, private zone: NgZone, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
               private snack: MatSnackBar) {
-                this.both = false;
-              }
+    this.both = false;
+  }
 
+  public get link() {
+    return (this.service.linkedAccs ? this.service.linkedAccs : []).length > 0;
+  }
   public get data() {
     return this.service.data.filter((val) => val.type === (this.type === 'char' ? 0 : 1));
   }
@@ -82,8 +85,8 @@ export class CopyComponent implements OnInit {
         this.data = data;
         this.primary = '';
       });
-    }, () => {}, () => {
-      this.zone.run(() => {});
+    }, () => { }, () => {
+      this.zone.run(() => { });
     });
   }
 
@@ -93,38 +96,33 @@ export class CopyComponent implements OnInit {
       .filter(x => x)
 
   copySettings = () => {
-    let copyObs: Observable<void>;
-    const primaryChar = this.data.find(val => val.name === this.primary).id;
-    const selectedChars = this.data.filter(val => val.checked).map(char => char.id);
-    if (this.both && this.type === 'char') {
-      const primaryAcc = this.service.linkedAccs.find(accs => accs.charIds.find(val => val === primaryChar) != null);
-      let interpolatedAccs =
-        selectedChars.map(char => this.service.linkedAccs.find(accs => accs.charIds.find(val => val === char) != null));
-      if (primaryAcc && interpolatedAccs) {
-        interpolatedAccs = interpolatedAccs.filter(acc => acc.accId !== primaryAcc.accId);
-        if (interpolatedAccs.length > 0) {
-          copyObs = this.service.copyBoth(
-            primaryChar,
-            primaryAcc.accId,
-            selectedChars,
-            interpolatedAccs.map(acc => acc.accId)
-          );
-        } else {
-          copyObs = this.service.copyData(primaryChar, selectedChars);
+    const primary = this.data.find(val => val.name === this.primary).id;
+    const selected = this.data.filter(val => val.checked).map(val => val.id);
+    let copyObs: Observable<void> = this.service.copyData(primary, selected);
+    if (this.both) {
+      if (this.type === 'char') {
+        const primaryAcc = this.service.linkedAccs.find(accs => accs.charIds.find(val => val === primary) != null);
+        let interpolatedAccs =
+          selected.map(acc => this.service.linkedAccs.find(accs => accs.charIds.find(val => val === acc) != null));
+        if (primaryAcc && interpolatedAccs) {
+          interpolatedAccs = interpolatedAccs.filter(x => x).filter(acc => acc.accId !== primaryAcc.accId);
+          if (interpolatedAccs.length > 0) {
+            copyObs = this.service.copyBoth(
+              primary,
+              primaryAcc.accId,
+              selected,
+              Array.from(new Set(interpolatedAccs.map(acc => acc.accId)))
+            );
+          }
         }
-      } else {
-        copyObs = this.service.copyData(primaryChar, selectedChars);
       }
-    } else {
-      copyObs = this.service.copyData(primaryChar, selectedChars);
     }
-
 
     copyObs.subscribe(() => {
       this.zone.run(() => {
         this.data.forEach(val => (val.checked = false));
         this.cdr.detectChanges();
-        this.snack.open(`${this.typeName} Settings copied & Backup created!`, 'Dismiss', {
+        this.snack.open(`Settings copied & Backup created!`, 'Dismiss', {
           duration: 10000
         });
       });
