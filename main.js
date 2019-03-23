@@ -24,7 +24,7 @@ if (process.platform === 'darwin') {
   baseDir = path.join(home, 'AppData', 'Local', 'CCP', 'EVE');
 }
 let dir = baseDir;
-const confFile = path.join(baseDir, 'evep.conf');
+const confFile = path.join(baseDir, 'lostui.conf');
 
 ipcMain.on('getFiles', (event, arg) => {
   fs.readdir(dir, (err, data) => {
@@ -54,11 +54,11 @@ ipcMain.on('copyData', (event, arg) => {
   list.forEach(function (str) {
     zip.file(`${pre}${str}.dat`, fs.readFileSync(path.join(dir, `${pre}${str}.dat`)));
   });
-  if (!fs.existsSync(path.join(dir, 'evep'))) {
-    fs.mkdirSync(path.join(dir, 'evep'));
+  if (!fs.existsSync(path.join(dir, 'backups'))) {
+    fs.mkdirSync(path.join(dir, 'backups'));
   }
   zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-    .pipe(fs.createWriteStream(path.join(dir, 'evep', `${arg[0]}_${encodeDate(new Date().toISOString())}.zip`)))
+    .pipe(fs.createWriteStream(path.join(dir, 'backups', `${arg[0]}_${encodeDate(new Date().toISOString())}.zip`)))
     .on('finish', function () {
       list.forEach(function (str) {
         fs.copyFileSync(path.join(dir, `${pre}${main}.dat`), path.join(dir, `${pre}${str}.dat`));
@@ -79,11 +79,11 @@ ipcMain.on('copyBoth', (event, arg) => {
   aList.forEach(function (str) {
     zip.file(`core_user_${str}.dat`, fs.readFileSync(path.join(dir, `core_user_${str}.dat`)));
   });
-  if (!fs.existsSync(path.join(dir, 'evep'))) {
-    fs.mkdirSync(path.join(dir, 'evep'));
+  if (!fs.existsSync(path.join(dir, 'backups'))) {
+    fs.mkdirSync(path.join(dir, 'backups'));
   }
   zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-    .pipe(fs.createWriteStream(path.join(dir, 'evep', `alls_${encodeDate(new Date().toISOString())}.zip`)))
+    .pipe(fs.createWriteStream(path.join(dir, 'backups', `alls_${encodeDate(new Date().toISOString())}.zip`)))
     .on('finish', function () {
       cList.forEach(function (str) {
         fs.copyFileSync(path.join(dir, `core_char_${sChar}.dat`), path.join(dir, `core_char_${str}.dat`));
@@ -113,13 +113,13 @@ ipcMain.on('selectProfile', (event, arg) => {
 });
 
 ipcMain.on('getBackups', (event, arg) => {
-  fs.readdir(path.join(dir, 'evep'), (err, data) => {
+  fs.readdir(path.join(dir, 'backups'), (err, data) => {
     win.webContents.send('getBackupsResponse', data);
   })
 });
 
 ipcMain.on('getBackupInfo', (event, arg) => {
-  fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
+  fs.readFile(path.join(dir, 'backups', arg), (err, data) => {
     JSZip.loadAsync(data).then((zip) => {
       const files = Object.keys(zip.files).map(file => ({
         location: `${driveDir}/${confDir}`,
@@ -133,7 +133,7 @@ ipcMain.on('getBackupInfo', (event, arg) => {
 });
 
 ipcMain.on('restoreBackup', (event, arg) => {
-  fs.readFile(path.join(dir, 'evep', arg), (err, data) => {
+  fs.readFile(path.join(dir, 'backups', arg), (err, data) => {
     JSZip.loadAsync(data).then((zip) => {
       Object.keys(zip.files).forEach((file) => {
         zip.file(file).async("nodebuffer").then((val) => {
@@ -142,7 +142,7 @@ ipcMain.on('restoreBackup', (event, arg) => {
           stream.end();
         });
       });
-      fs.unlinkSync(path.join(dir, 'evep', arg));
+      fs.unlinkSync(path.join(dir, 'backups', arg));
       win.webContents.send('restoreBackupResponse', data);
     });
   });

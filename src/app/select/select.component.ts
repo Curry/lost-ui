@@ -22,6 +22,9 @@ export class SelectComponent implements OnInit {
   ngOnInit() {
     this.service.getDrives().subscribe((val) => {
         this.allDrives = val;
+      }, () => {
+        this.dialogRef.close();
+      }, () => {
         this.selectedDrive = '';
       });
   }

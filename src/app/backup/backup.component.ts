@@ -26,7 +26,10 @@ export class BackupComponent implements OnInit {
     this.service.getBackups()
       .subscribe((backups) => {
         this.backups = backups.sort((a, b) => a.date > b.date ? 1 : -1);
-      }, () => {}, () => {
+      }, () => {
+        this.backups = [];
+        this.ready = true;
+      }, () => {
         this.ready = true;
       });
   }
