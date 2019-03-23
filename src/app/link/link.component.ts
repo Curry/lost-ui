@@ -24,7 +24,8 @@ export class LinkComponent implements OnInit {
   }
 
   public get data() {
-    return this.service.data.filter(val => val.type === 0);
+    const filtLinked: string[] = [].concat.apply([], this.service.linkedAccs.map(acc => acc.charIds));
+    return this.service.data.filter(val => val.type === 0 && !filtLinked.some(char => char === val.id));
   }
 
   ngOnInit() {

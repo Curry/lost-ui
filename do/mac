@@ -2,8 +2,7 @@
 set -e
 
 npm run package:osx
-cd packages/EveProfile-darwin-x64/
-zip -r eve-profile-osx64.zip *
-mv eve-profile-osx64.zip ../
-cd ../..
+cd packages/
+zip -r lost-ui-osx64.zip LostUI-darwin-x64/
+cd ..
 echo "Mac Zip Created"

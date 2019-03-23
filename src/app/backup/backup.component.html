@@ -21,7 +21,7 @@
     </div>
     <div *ngIf="data">
       <h2>The Following Will Be Restored</h2>
-      <div fxLayout="row wrap">
+      <div fxLayout="row wrap" class="center">
         <mat-card *ngFor="let val of data">
           <mat-card-header>
             <img matCardAvatar *ngIf="val.img" [src]="val.img">

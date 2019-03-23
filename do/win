@@ -2,8 +2,7 @@
 set -e
 
 npm run package:win
-cd packages/EveProfile-win32-x64/
-zip -r eve-profile-win64.zip *
-mv eve-profile-win64.zip ../
-cd ../..
+cd packages
+zip -r lost-ui-win64.zip LostUI-win32-x64/
+cd ..
 echo "Windows Zip Created"

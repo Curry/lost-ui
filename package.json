@@ -1,8 +1,8 @@
 {
-  "name": "eve-profile",
-  "displayName": "Eve Profile",
+  "name": "lost-ui",
+  "displayName": "Lost UI",
   "version": "0.4.4",
-  "productName": "Eve Profile",
+  "productName": "Lost UI",
   "author": {
     "email": "curryfurious@gmail.com",
     "name": "Akaash Suresh"
@@ -13,9 +13,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "package:win": "electron-packager . EveProfile --out=packages --platform=win32 --arch=x64 --overwrite --asar",
-    "package:linux": "electron-packager . EveProfile --out=packages --platform=linux --arch=x64 --overwrite --asar",
-    "package:osx": "electron-packager . EveProfile --out=packages --platform=darwin --arch=x64 --overwrite --asar"
+    "package:win": "electron-packager . LostUI --out=packages --platform=win32 --arch=x64 --overwrite --asar",
+    "package:linux": "electron-packager . LostUI --out=packages --platform=linux --arch=x64 --overwrite --asar",
+    "package:osx": "electron-packager . LostUI --out=packages --platform=darwin --arch=x64 --overwrite --asar"
   },
   "private": true,
   "dependencies": {

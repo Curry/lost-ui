@@ -29,11 +29,15 @@ export class AppService {
       concatMap(() => this.getData())
     )
 
-  public copyData = (main: string, vals: string[]): Observable<void> =>
-    this.ipc.copyData(this.type, main, vals)
+  public copyData = (main: string, vals: string[]): Observable<Data[]> =>
+    this.ipc.copyData(this.type, main, vals).pipe(
+      concatMap(() => this.updateData(false))
+    )
 
-  public copyBoth = (sourceChar: string, sourceAcc: string, destChars: string[], destAccs: string[]): Observable<void> =>
-    this.ipc.copyBoth(sourceChar, sourceAcc, destChars, destAccs)
+  public copyBoth = (sourceChar: string, sourceAcc: string, destChars: string[], destAccs: string[]): Observable<Data[]> =>
+    this.ipc.copyBoth(sourceChar, sourceAcc, destChars, destAccs).pipe(
+      concatMap(() => this.updateData(false))
+    )
 
   public getDrives = () => this.ipc.getDrives().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)));
 

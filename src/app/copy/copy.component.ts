@@ -95,7 +95,7 @@ export class CopyComponent implements OnInit {
   copySettings = () => {
     const primary = this.data.find(val => val.name === this.primary).id;
     const selected = this.data.filter(val => val.checked).map(val => val.id);
-    let copyObs: Observable<void> = this.service.copyData(primary, selected);
+    let copyObs: Observable<Data[]> = this.service.copyData(primary, selected);
     if (this.both) {
       if (this.type === 'char') {
         const primaryAcc = this.service.linkedAccs.find(accs => accs.charIds.find(val => val === primary) != null);
@@ -114,10 +114,12 @@ export class CopyComponent implements OnInit {
         }
       }
     }
-
-    copyObs.subscribe(() => {
+    this.data = [];
+    copyObs.subscribe((data: Data[]) => {
       this.zone.run(() => {
-        this.data.forEach(val => (val.checked = false));
+        this.data = data;
+        this.primary = '';
+        this.both = false;
         this.cdr.detectChanges();
         this.snack.open(`Settings copied & Backup created!`, 'Dismiss', {
           duration: 10000
@@ -138,7 +140,8 @@ export class CopyComponent implements OnInit {
   link = () => {
     const primary = this.data.find(val => val.name === this.primary);
     if (primary) {
-      return this.service.linkedAccs.find(accs => accs.charIds.find(val => val === primary.id) != null) != null;
+      const filtLinked: string[] = [].concat.apply([], this.service.linkedAccs.map(acc => acc.charIds));
+      return this.data.filter(val => val.checked).some(val => filtLinked.some(data => data === val.id));
     } else {
       return false;
     }
