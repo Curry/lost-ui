@@ -27,4 +27,30 @@
   </div>
   <h4>Press this button after you have opened & closed the account</h4>
   <button mat-raised-button (click)="findAccount()" color="accent" [disabled]="arr.length === 0">Link</button>
+  <div *ngIf="ready && linked.length > 0">
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>Clear Linked Accounts</mat-panel-title>
+          <mat-panel-description>Remove linking between characters and accounts</mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-list>
+          <h3 matSubheader>Accounts</h3>
+          <mat-selection-list [(ngModel)]="selectedAccs">
+            <mat-list-option *ngFor="let link of linked" [value]="link">
+              <div fxLayout="row" class="link-name">
+                <p *ngFor="let name of names(link.charIds)">
+                  {{name}}
+                </p>
+                <mat-divider [vertical]="true"></mat-divider>
+              </div>
+            </mat-list-option>
+          </mat-selection-list>
+        </mat-list>
+        <mat-action-row>
+          <button mat-raised-button (click)="clearLinked()" color="accent">Clear</button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
 </div>

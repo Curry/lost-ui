@@ -30,14 +30,15 @@ export class AppService {
     )
 
   public copyData = (main: string, vals: string[]): Observable<Data[]> =>
-    this.ipc.copyData(this.type, main, vals).pipe(
-      concatMap(() => this.updateData(false))
-    )
+    this.ipc.copyData(this.type, main, vals).pipe(concatMap(() => this.updateData(false)))
 
-  public copyBoth = (sourceChar: string, sourceAcc: string, destChars: string[], destAccs: string[]): Observable<Data[]> =>
-    this.ipc.copyBoth(sourceChar, sourceAcc, destChars, destAccs).pipe(
-      concatMap(() => this.updateData(false))
-    )
+  public copyBoth = (
+    sourceChar: string,
+    sourceAcc: string,
+    destChars: string[],
+    destAccs: string[]
+  ): Observable<Data[]> =>
+    this.ipc.copyBoth(sourceChar, sourceAcc, destChars, destAccs).pipe(concatMap(() => this.updateData(false)))
 
   public getDrives = () => this.ipc.getDrives().pipe(concatMap(() => this.getFiles(/([a-z]{1})(.*)(tq|sisi)/)));
 
@@ -64,16 +65,24 @@ export class AppService {
 
   public setLinkedAccount = (acc: string, chars: string[]) => this.ipc.setLinkedAccount(acc, chars);
 
+  public getLinkedAccounts = () =>
+    this.ipc.getLinkedAccounts().pipe(
+      tap(linkedAccs => {
+        this.linkedAccs = linkedAccs.sort((a, b) =>
+          a.accId.localeCompare(b.accId, undefined, { numeric: true, sensitivity: 'base' })
+        );
+      })
+    )
+
   private getData = (files?: FileData[]): Observable<Data[]> =>
     (files ? of(files) : this.ipc.getDataFiles()).pipe(
       concatMap(fileData => forkJoin(this.getInfo(fileData))),
-      map(data => data.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}))),
+      map(data => data.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))),
       exhaustMap(this.getLinked)
     )
 
   private getLinked = (data: Data[]) => {
-    return this.ipc.getLinkedAccounts().pipe(
-      tap((linkedAccs) => this.linkedAccs = linkedAccs),
+    return this.getLinkedAccounts().pipe(
       map(link => {
         link.forEach(acc => {
           const linkedAcc = data.find(val => val.id === acc.accId);
@@ -99,22 +108,27 @@ export class AppService {
     const existingChar = this.data.find(val => val.id === charData.id);
     return existingChar
       ? of(existingChar)
-      : this.http
-        .get<Character>(`${this.baseUrl}/characters/${charData.id}/`)
-        .pipe(
-          catchError(() => of({
-            id: charData.id,
-            name: charData.id
-          })),
-          map(char => new Data(charData, char.name, (charData.id === char.name ? '' : `${this.imageServer}${charData.id}_128.jpg`)))
+      : this.http.get<Character>(`${this.baseUrl}/characters/${charData.id}/`).pipe(
+          catchError(() =>
+            of({
+              id: charData.id,
+              name: charData.id
+            })
+          ),
+          map(
+            char =>
+              new Data(
+                charData,
+                char.name,
+                charData.id === char.name ? '' : `${this.imageServer}${charData.id}_128.jpg`
+              )
+          )
         );
   }
 
   private accInfo = (accData: FileData): Observable<Data> => {
     const existingAcc = this.data.find(val => val.id === accData.id);
-    return existingAcc
-      ? of(existingAcc)
-      : of(new Data(accData));
+    return existingAcc ? of(existingAcc) : of(new Data(accData));
   }
 
   private getFiles = (regex: RegExp): Observable<string[]> =>

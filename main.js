@@ -212,14 +212,10 @@ ipcMain.on('setLinkedAccount', (event, arg) => {
 });
 
 ipcMain.on('getLinkedAccounts', (event, arg) => {
-  let result;
   if (!fs.existsSync(confFile)) {
-    result = [];
     fs.writeFileSync(confFile, JSON.stringify([], null, 2));
-  } else {
-    result = JSON.parse(fs.readFileSync(confFile));
   }
-  win.webContents.send('getLinkedAccountsResponse', result);
+  win.webContents.send('getLinkedAccountsResponse', JSON.parse(fs.readFileSync(confFile)));
 });
 
 const encodeDate = (date) => {

@@ -1,7 +1,7 @@
 <div>
   <div class="char-row" fxLayout="row">
     <h2>Primary {{typeName}}</h2>
-    <button mat-stroked-button (click)="refresh()" color="primary">Refresh</button>
+    <button mat-stroked-button (click)="refresh()" color="accent">Refresh</button>
   </div>
   <div class="select-row" fxLayout="row">
     <mat-form-field>
@@ -29,9 +29,9 @@
         <mat-card-title>{{val.name}}</mat-card-title>
       </mat-card-header>
       <mat-card-content *ngIf="type === 'user'">
-          <p *ngFor="let item of getKnownLinkedChars(val.linkedChars)">
-            {{item.name}}
-          </p>
+        <p *ngFor="let item of getKnownLinkedChars(val.linkedChars)">
+          {{item.name}}
+        </p>
       </mat-card-content>
       <mat-card-actions align="middle">
         <mat-checkbox class="example-margin" [(ngModel)]="val.checked" [disabled]="!primary || val.disabled">

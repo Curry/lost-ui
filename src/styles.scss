@@ -10,6 +10,7 @@ $theme: mat-dark-theme($primary, $accent, $warn); // Or mat-dark-theme
 
 html {
   font-family: 'Roboto', sans-serif;
+  word-break: break-word;
 }
 
 .selected {
