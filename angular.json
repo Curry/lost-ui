@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "eve-profile": {
+    "lost-ui": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -67,18 +67,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "eve-profile:build"
+            "browserTarget": "lost-ui:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "eve-profile:build:production"
+              "browserTarget": "lost-ui:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "eve-profile:build"
+            "browserTarget": "lost-ui:build"
           }
         },
         "test": {
@@ -112,7 +112,7 @@
         }
       }
     },
-    "eve-profile-e2e": {
+    "lost-ui-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -121,11 +121,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "eve-profile:serve"
+            "devServerTarget": "lost-ui:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "eve-profile:serve:production"
+              "devServerTarget": "lost-ui:serve:production"
             }
           }
         },
@@ -141,5 +141,5 @@
       }
     }
   },
-  "defaultProject": "eve-profile"
+  "defaultProject": "lost-ui"
 }

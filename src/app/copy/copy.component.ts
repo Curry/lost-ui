@@ -140,7 +140,9 @@ export class CopyComponent implements OnInit {
   link = () => {
     const primary = this.data.find(val => val.name === this.primary);
     if (primary) {
-      const filtLinked: string[] = [].concat.apply([], this.service.linkedAccs.map(acc => acc.charIds));
+      const filteredAccs =
+        this.service.linkedAccs.filter(val => !val.charIds.some(char => char === this.data.find(data => data.name === this.primary).id));
+      const filtLinked: string[] = [].concat.apply([], filteredAccs.map(acc => acc.charIds));
       return this.data.filter(val => val.checked).some(val => filtLinked.some(data => data === val.id));
     } else {
       return false;
