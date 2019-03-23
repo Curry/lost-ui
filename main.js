@@ -203,7 +203,7 @@ ipcMain.on('setLinkedAccount', (event, arg) => {
     data.push({
       accId: arg[0],
       charIds: arg.slice(1)
-    })
+    });
   } else {
     data.find(val => val.accId === arg[0]).charIds = arg.slice(1);
   }

@@ -82,7 +82,8 @@ export class CopyComponent implements OnInit {
         this.data = data;
         this.primary = '';
       });
-    }, () => { }, () => {
+    }, (err) => {
+    }, () => {
       this.zone.run(() => { });
     });
   }

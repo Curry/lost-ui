@@ -14,7 +14,7 @@ import { forkJoin } from 'rxjs';
 })
 export class LinkComponent implements OnInit {
   arr: Data[];
-  selectedAccs: string[];
+  selectedAccs: Select[];
   ready: boolean;
   constructor(
     private service: AppService,
@@ -50,7 +50,8 @@ export class LinkComponent implements OnInit {
   getUniqueInputs = () => Array.from(new Set(this.arr.filter(x => x).map(val => val.id)));
 
   clearLinked = () => {
-    forkJoin(this.selectedAccs.map(acc => this.service.setLinkedAccount(acc, [])))
+    this.ready = false;
+    forkJoin(this.selectedAccs.map(acc => this.service.setLinkedAccount(acc.accId, [])))
       .pipe(map(this.service.getLinkedAccounts))
       .subscribe(() => {
         this.zone.run(() => {
@@ -61,6 +62,7 @@ export class LinkComponent implements OnInit {
   }
 
   findAccount = () => {
+    this.ready = false;
     this.service.getLatestAccount()
       .pipe(
         tap(link => this.service.data.find(val => val.id === link).linkedChars = this.getUniqueInputs()),
