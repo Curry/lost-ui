@@ -228,7 +228,10 @@ const encodeDate = (date) => {
 const createWindow = () => {
   win = new BrowserWindow({
     width: 1200,
-    height: 1200
+    height: 1200,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   if (serve) {
