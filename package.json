@@ -31,7 +31,7 @@
     "@angular/platform-browser-dynamic": "~9.0.6",
     "@angular/router": "~9.0.6",
     "core-js": "^2.5.4",
-    "jszip": "^3.2.0",
+    "jszip": "^3.7.0",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
